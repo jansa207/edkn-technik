@@ -1,15 +1,12 @@
-import { Link } from 'react-router'
+import { ButtonLink } from '@/components/Button'
 
 export function NotFoundPage() {
   return (
-    <div className="space-y-4">
-      <h1 className="text-2xl font-bold">Seite nicht gefunden</h1>
-      <Link
-        to="/"
-        className="bg-marine inline-flex min-h-12 items-center rounded-lg px-5 text-lg font-semibold text-white"
-      >
+    <div className="space-y-4 py-6">
+      <h1 className="text-2xl font-semibold">Seite nicht gefunden</h1>
+      <ButtonLink to="/" art="primaer">
         Zur Startseite
-      </Link>
+      </ButtonLink>
     </div>
   )
 }

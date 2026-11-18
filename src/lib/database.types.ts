@@ -187,6 +187,13 @@ export type Database = {
             foreignKeyName: 'report_events_report_id_fkey'
             columns: ['report_id']
             isOneToOne: false
+            referencedRelation: 'report_list'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'report_events_report_id_fkey'
+            columns: ['report_id']
+            isOneToOne: false
             referencedRelation: 'reports'
             referencedColumns: ['id']
           },
@@ -231,6 +238,13 @@ export type Database = {
             foreignKeyName: 'report_photos_report_id_fkey'
             columns: ['report_id']
             isOneToOne: false
+            referencedRelation: 'report_list'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'report_photos_report_id_fkey'
+            columns: ['report_id']
+            isOneToOne: false
             referencedRelation: 'reports'
             referencedColumns: ['id']
           },
@@ -246,6 +260,7 @@ export type Database = {
           id: string
           kategorie: number | null
           melder_id: string
+          nr: number
           pilotenhinweis: string | null
           pilotenhinweis_sichtbar: boolean
           status: Database['public']['Enums']['meldung_status']
@@ -263,6 +278,7 @@ export type Database = {
           id?: string
           kategorie?: number | null
           melder_id: string
+          nr?: never
           pilotenhinweis?: string | null
           pilotenhinweis_sichtbar?: boolean
           status?: Database['public']['Enums']['meldung_status']
@@ -279,6 +295,7 @@ export type Database = {
           id?: string
           kategorie?: number | null
           melder_id?: string
+          nr?: never
           pilotenhinweis?: string | null
           pilotenhinweis_sichtbar?: boolean
           status?: Database['public']['Enums']['meldung_status']
@@ -325,6 +342,255 @@ export type Database = {
           {
             foreignKeyName: 'reports_melder_id_fkey'
             columns: ['melder_id']
+            isOneToOne: false
+            referencedRelation: 'profiles'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      task_events: {
+        Row: {
+          created_at: string
+          id: number
+          task_id: string
+          text: string | null
+          typ: Database['public']['Enums']['aufgabe_event_typ']
+          user_id: string | null
+        }
+        ComputedFields: never
+        Insert: {
+          created_at?: string
+          id?: never
+          task_id: string
+          text?: string | null
+          typ: Database['public']['Enums']['aufgabe_event_typ']
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: never
+          task_id?: string
+          text?: string | null
+          typ?: Database['public']['Enums']['aufgabe_event_typ']
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'task_events_task_id_fkey'
+            columns: ['task_id']
+            isOneToOne: false
+            referencedRelation: 'task_list'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'task_events_task_id_fkey'
+            columns: ['task_id']
+            isOneToOne: false
+            referencedRelation: 'tasks'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'task_events_user_id_fkey'
+            columns: ['user_id']
+            isOneToOne: false
+            referencedRelation: 'profile_names'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'task_events_user_id_fkey'
+            columns: ['user_id']
+            isOneToOne: false
+            referencedRelation: 'profiles'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      task_items: {
+        Row: {
+          created_at: string
+          erledigt: boolean
+          erledigt_am: string | null
+          erledigt_von: string | null
+          id: string
+          position: number
+          task_id: string
+          text: string
+        }
+        ComputedFields: never
+        Insert: {
+          created_at?: string
+          erledigt?: boolean
+          erledigt_am?: string | null
+          erledigt_von?: string | null
+          id?: string
+          position?: number
+          task_id: string
+          text: string
+        }
+        Update: {
+          created_at?: string
+          erledigt?: boolean
+          erledigt_am?: string | null
+          erledigt_von?: string | null
+          id?: string
+          position?: number
+          task_id?: string
+          text?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'task_items_erledigt_von_fkey'
+            columns: ['erledigt_von']
+            isOneToOne: false
+            referencedRelation: 'profile_names'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'task_items_erledigt_von_fkey'
+            columns: ['erledigt_von']
+            isOneToOne: false
+            referencedRelation: 'profiles'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'task_items_task_id_fkey'
+            columns: ['task_id']
+            isOneToOne: false
+            referencedRelation: 'task_list'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'task_items_task_id_fkey'
+            columns: ['task_id']
+            isOneToOne: false
+            referencedRelation: 'tasks'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      tasks: {
+        Row: {
+          aircraft_id: string | null
+          beschreibung: string
+          created_at: string
+          erledigt_am: string | null
+          erledigt_von: string | null
+          erstellt_von: string | null
+          faellig_am: string | null
+          id: string
+          nr: number
+          prioritaet: Database['public']['Enums']['aufgabe_prioritaet']
+          report_id: string | null
+          status: Database['public']['Enums']['aufgabe_status']
+          titel: string
+          updated_at: string
+          wartet_auf: string | null
+          zustaendig_id: string | null
+        }
+        ComputedFields: never
+        Insert: {
+          aircraft_id?: string | null
+          beschreibung?: string
+          created_at?: string
+          erledigt_am?: string | null
+          erledigt_von?: string | null
+          erstellt_von?: string | null
+          faellig_am?: string | null
+          id?: string
+          nr?: never
+          prioritaet?: Database['public']['Enums']['aufgabe_prioritaet']
+          report_id?: string | null
+          status?: Database['public']['Enums']['aufgabe_status']
+          titel: string
+          updated_at?: string
+          wartet_auf?: string | null
+          zustaendig_id?: string | null
+        }
+        Update: {
+          aircraft_id?: string | null
+          beschreibung?: string
+          created_at?: string
+          erledigt_am?: string | null
+          erledigt_von?: string | null
+          erstellt_von?: string | null
+          faellig_am?: string | null
+          id?: string
+          nr?: never
+          prioritaet?: Database['public']['Enums']['aufgabe_prioritaet']
+          report_id?: string | null
+          status?: Database['public']['Enums']['aufgabe_status']
+          titel?: string
+          updated_at?: string
+          wartet_auf?: string | null
+          zustaendig_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'tasks_aircraft_id_fkey'
+            columns: ['aircraft_id']
+            isOneToOne: false
+            referencedRelation: 'aircraft'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'tasks_aircraft_id_fkey'
+            columns: ['aircraft_id']
+            isOneToOne: false
+            referencedRelation: 'aircraft_overview'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'tasks_erledigt_von_fkey'
+            columns: ['erledigt_von']
+            isOneToOne: false
+            referencedRelation: 'profile_names'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'tasks_erledigt_von_fkey'
+            columns: ['erledigt_von']
+            isOneToOne: false
+            referencedRelation: 'profiles'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'tasks_erstellt_von_fkey'
+            columns: ['erstellt_von']
+            isOneToOne: false
+            referencedRelation: 'profile_names'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'tasks_erstellt_von_fkey'
+            columns: ['erstellt_von']
+            isOneToOne: false
+            referencedRelation: 'profiles'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'tasks_report_id_fkey'
+            columns: ['report_id']
+            isOneToOne: false
+            referencedRelation: 'report_list'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'tasks_report_id_fkey'
+            columns: ['report_id']
+            isOneToOne: false
+            referencedRelation: 'reports'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'tasks_zustaendig_id_fkey'
+            columns: ['zustaendig_id']
+            isOneToOne: false
+            referencedRelation: 'profile_names'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'tasks_zustaendig_id_fkey'
+            columns: ['zustaendig_id']
             isOneToOne: false
             referencedRelation: 'profiles'
             referencedColumns: ['id']
@@ -387,6 +653,13 @@ export type Database = {
             foreignKeyName: 'report_events_report_id_fkey'
             columns: ['report_id']
             isOneToOne: false
+            referencedRelation: 'report_list'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'report_events_report_id_fkey'
+            columns: ['report_id']
+            isOneToOne: false
             referencedRelation: 'reports'
             referencedColumns: ['id']
           },
@@ -428,6 +701,207 @@ export type Database = {
         }
         Relationships: []
       }
+      report_list: {
+        Row: {
+          aircraft_id: string
+          anzahl_aufgaben_offen: number | null
+          anzahl_fotos: number | null
+          created_at: string
+          eingestuft_am: string | null
+          eingestuft_von: string | null
+          eingestuft_von_name: string | null
+          erledigt_am: string | null
+          id: string
+          kategorie: number | null
+          kennzeichen: string
+          letzte_aktivitaet: string | null
+          melder_id: string
+          melder_name: string | null
+          muster: string
+          nr: number
+          pilotenhinweis: string | null
+          pilotenhinweis_sichtbar: boolean
+          status: Database['public']['Enums']['meldung_status']
+          text: string
+          vorlaeufig_nicht_flugklar: boolean
+          ziel: string | null
+        }
+        ComputedFields: never
+        Relationships: [
+          {
+            foreignKeyName: 'reports_aircraft_id_fkey'
+            columns: ['aircraft_id']
+            isOneToOne: false
+            referencedRelation: 'aircraft'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'reports_aircraft_id_fkey'
+            columns: ['aircraft_id']
+            isOneToOne: false
+            referencedRelation: 'aircraft_overview'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'reports_eingestuft_von_fkey'
+            columns: ['eingestuft_von']
+            isOneToOne: false
+            referencedRelation: 'profile_names'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'reports_eingestuft_von_fkey'
+            columns: ['eingestuft_von']
+            isOneToOne: false
+            referencedRelation: 'profiles'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'reports_melder_id_fkey'
+            columns: ['melder_id']
+            isOneToOne: false
+            referencedRelation: 'profile_names'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'reports_melder_id_fkey'
+            columns: ['melder_id']
+            isOneToOne: false
+            referencedRelation: 'profiles'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      task_list: {
+        Row: {
+          aircraft_id: string | null
+          anzahl_kommentare: number | null
+          anzahl_schritte: number | null
+          anzahl_schritte_erledigt: number | null
+          beschreibung: string
+          created_at: string
+          erledigt_am: string | null
+          erstellt_von: string | null
+          erstellt_von_name: string | null
+          faellig_am: string | null
+          id: string
+          kennzeichen: string | null
+          letzte_aktivitaet: string | null
+          muster: string | null
+          nr: number
+          prioritaet: Database['public']['Enums']['aufgabe_prioritaet']
+          report_id: string | null
+          report_nr: number | null
+          status: Database['public']['Enums']['aufgabe_status']
+          titel: string
+          ueberfaellig: boolean | null
+          updated_at: string
+          wartet_auf: string | null
+          zustaendig_id: string | null
+          zustaendig_name: string | null
+        }
+        ComputedFields: never
+        Relationships: [
+          {
+            foreignKeyName: 'tasks_aircraft_id_fkey'
+            columns: ['aircraft_id']
+            isOneToOne: false
+            referencedRelation: 'aircraft'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'tasks_aircraft_id_fkey'
+            columns: ['aircraft_id']
+            isOneToOne: false
+            referencedRelation: 'aircraft_overview'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'tasks_erstellt_von_fkey'
+            columns: ['erstellt_von']
+            isOneToOne: false
+            referencedRelation: 'profile_names'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'tasks_erstellt_von_fkey'
+            columns: ['erstellt_von']
+            isOneToOne: false
+            referencedRelation: 'profiles'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'tasks_report_id_fkey'
+            columns: ['report_id']
+            isOneToOne: false
+            referencedRelation: 'report_list'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'tasks_report_id_fkey'
+            columns: ['report_id']
+            isOneToOne: false
+            referencedRelation: 'reports'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'tasks_zustaendig_id_fkey'
+            columns: ['zustaendig_id']
+            isOneToOne: false
+            referencedRelation: 'profile_names'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'tasks_zustaendig_id_fkey'
+            columns: ['zustaendig_id']
+            isOneToOne: false
+            referencedRelation: 'profiles'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      task_verlauf: {
+        Row: {
+          created_at: string
+          id: number
+          task_id: string
+          text: string | null
+          typ: Database['public']['Enums']['aufgabe_event_typ']
+          user_id: string | null
+          user_name: string | null
+        }
+        ComputedFields: never
+        Relationships: [
+          {
+            foreignKeyName: 'task_events_task_id_fkey'
+            columns: ['task_id']
+            isOneToOne: false
+            referencedRelation: 'task_list'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'task_events_task_id_fkey'
+            columns: ['task_id']
+            isOneToOne: false
+            referencedRelation: 'tasks'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'task_events_user_id_fkey'
+            columns: ['user_id']
+            isOneToOne: false
+            referencedRelation: 'profile_names'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'task_events_user_id_fkey'
+            columns: ['user_id']
+            isOneToOne: false
+            referencedRelation: 'profiles'
+            referencedColumns: ['id']
+          },
+        ]
+      }
     }
     Functions: {
       admin_update_user: {
@@ -440,13 +914,47 @@ export type Database = {
       }
       aircraft_entsperren: { Args: { p_aircraft_id: string; p_grund: string }; Returns: undefined }
       aircraft_sperren: { Args: { p_aircraft_id: string; p_grund: string }; Returns: undefined }
+      aufgabe_status_text: {
+        Args: { p_status: Database['public']['Enums']['aufgabe_status'] }
+        Returns: string
+      }
       current_rolle: {
         Args: Record<PropertyKey, never>
         Returns: Database['public']['Enums']['rolle']
       }
+      heute: { Args: Record<PropertyKey, never>; Returns: string }
       is_admin: { Args: Record<PropertyKey, never>; Returns: boolean }
       is_approved: { Args: Record<PropertyKey, never>; Returns: boolean }
       is_wart: { Args: Record<PropertyKey, never>; Returns: boolean }
+      offene_aufgabe: {
+        Args: { p_task_id: string }
+        Returns: {
+          aircraft_id: string | null
+          beschreibung: string
+          created_at: string
+          erledigt_am: string | null
+          erledigt_von: string | null
+          erstellt_von: string | null
+          faellig_am: string | null
+          id: string
+          nr: number
+          prioritaet: Database['public']['Enums']['aufgabe_prioritaet']
+          report_id: string | null
+          status: Database['public']['Enums']['aufgabe_status']
+          titel: string
+          updated_at: string
+          wartet_auf: string | null
+          zustaendig_id: string | null
+        }
+        SetofOptions: {
+          from: '*'
+          to: 'tasks'
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      profil_name: { Args: { p_id: string }; Returns: string }
+      pruefe_zustaendig: { Args: { p_id: string }; Returns: undefined }
       report_comment: {
         Args: { p_intern?: boolean; p_report_id: string; p_text: string }
         Returns: undefined
@@ -476,12 +984,52 @@ export type Database = {
         }
         Returns: undefined
       }
+      task_comment: { Args: { p_task_id: string; p_text: string }; Returns: undefined }
+      task_create: {
+        Args: {
+          p_aircraft_id?: string
+          p_beschreibung?: string
+          p_faellig_am?: string
+          p_prioritaet?: Database['public']['Enums']['aufgabe_prioritaet']
+          p_report_id?: string
+          p_teilschritte?: string[]
+          p_titel: string
+          p_zustaendig_id?: string
+        }
+        Returns: string
+      }
+      task_item_add: { Args: { p_task_id: string; p_text: string }; Returns: string }
+      task_item_delete: { Args: { p_item_id: string }; Returns: undefined }
+      task_item_set: { Args: { p_erledigt: boolean; p_item_id: string }; Returns: undefined }
+      task_set_status: {
+        Args: {
+          p_status: Database['public']['Enums']['aufgabe_status']
+          p_task_id: string
+          p_text?: string
+        }
+        Returns: undefined
+      }
+      task_update: {
+        Args: {
+          p_aircraft_id: string
+          p_beschreibung: string
+          p_faellig_am: string
+          p_prioritaet: Database['public']['Enums']['aufgabe_prioritaet']
+          p_task_id: string
+          p_titel: string
+          p_zustaendig_id: string
+        }
+        Returns: undefined
+      }
     }
     Enums: {
       ampel: 'gruen' | 'gelb' | 'rot'
+      aufgabe_event_typ: 'erstellt' | 'geaendert' | 'status' | 'kommentar' | 'teilschritt'
+      aufgabe_prioritaet: 'niedrig' | 'normal' | 'hoch'
+      aufgabe_status: 'offen' | 'in_arbeit' | 'wartet' | 'erledigt' | 'verworfen'
       event_typ: 'erstellt' | 'kommentar' | 'statuswechsel' | 'kategorie' | 'sperre' | 'entsperrt'
       flugzeug_art: 'segler' | 'motorsegler' | 'ul' | 'schlepp'
-      freigabe: 'ausstehend' | 'freigegeben' | 'abgelehnt'
+      freigabe: 'ausstehend' | 'freigegeben' | 'abgelehnt' | 'deaktiviert'
       meldung_status: 'neu' | 'zurueckgestellt' | 'in_arbeit' | 'erledigt' | 'abgelegt'
       rolle: 'pilot' | 'wart' | 'admin'
     }
@@ -599,9 +1147,12 @@ export const Constants = {
   public: {
     Enums: {
       ampel: ['gruen', 'gelb', 'rot'],
+      aufgabe_event_typ: ['erstellt', 'geaendert', 'status', 'kommentar', 'teilschritt'],
+      aufgabe_prioritaet: ['niedrig', 'normal', 'hoch'],
+      aufgabe_status: ['offen', 'in_arbeit', 'wartet', 'erledigt', 'verworfen'],
       event_typ: ['erstellt', 'kommentar', 'statuswechsel', 'kategorie', 'sperre', 'entsperrt'],
       flugzeug_art: ['segler', 'motorsegler', 'ul', 'schlepp'],
-      freigabe: ['ausstehend', 'freigegeben', 'abgelehnt'],
+      freigabe: ['ausstehend', 'freigegeben', 'abgelehnt', 'deaktiviert'],
       meldung_status: ['neu', 'zurueckgestellt', 'in_arbeit', 'erledigt', 'abgelegt'],
       rolle: ['pilot', 'wart', 'admin'],
     },

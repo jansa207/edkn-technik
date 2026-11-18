@@ -3,18 +3,24 @@ import { AMPEL_TEXT, type AmpelStatus } from './ampelStatus'
 // Ampel: immer Farbe + Symbol + Text, nie nur Farbe (Barrierefreiheit, Sonne, Farbschwäche).
 const STIL: Record<AmpelStatus, string> = {
   gruen: 'bg-ampel-gruen text-white',
-  gelb: 'bg-ampel-gelb text-neutral-950',
+  gelb: 'bg-ampel-gelb text-ampel-gelb-text',
   rot: 'bg-ampel-rot text-white',
 }
 
-function Symbol({ status }: { status: AmpelStatus }) {
+const GROESSE = {
+  klein: { box: 'min-h-7 px-2 text-xs gap-1.5', icon: 'size-3.5' },
+  normal: { box: 'min-h-8 px-2.5 text-sm gap-1.5', icon: 'size-4' },
+  gross: { box: 'min-h-11 px-4 text-base gap-2', icon: 'size-5' },
+}
+
+export function AmpelSymbol({ status, className }: { status: AmpelStatus; className: string }) {
   const common = {
     'aria-hidden': true,
     viewBox: '0 0 24 24',
-    className: 'size-6 shrink-0',
+    className: `${className} shrink-0`,
     fill: 'none',
     stroke: 'currentColor',
-    strokeWidth: 3,
+    strokeWidth: 3.2,
     strokeLinecap: 'round' as const,
     strokeLinejoin: 'round' as const,
   }
@@ -28,7 +34,7 @@ function Symbol({ status }: { status: AmpelStatus }) {
     case 'gelb':
       return (
         <svg {...common}>
-          <path d="M12 7v6M12 17.5v.01" />
+          <path d="M12 6v8M12 18.5v.01" />
         </svg>
       )
     case 'rot':
@@ -40,13 +46,20 @@ function Symbol({ status }: { status: AmpelStatus }) {
   }
 }
 
-export function Ampel({ status }: { status: AmpelStatus }) {
+export function Ampel({
+  status,
+  groesse = 'normal',
+}: {
+  status: AmpelStatus
+  groesse?: keyof typeof GROESSE
+}) {
+  const g = GROESSE[groesse]
   return (
     <span
-      className={`inline-flex min-h-10 items-center gap-2 rounded-full px-4 py-1 text-base font-bold ${STIL[status]}`}
+      className={`inline-flex items-center rounded-sm font-bold tracking-wide whitespace-nowrap uppercase ${g.box} ${STIL[status]}`}
       data-ampel={status}
     >
-      <Symbol status={status} />
+      <AmpelSymbol status={status} className={g.icon} />
       <span>{AMPEL_TEXT[status]}</span>
     </span>
   )

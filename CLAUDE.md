@@ -26,15 +26,20 @@ Das Tool ist **eigenständig** (nicht Teil des SMS-Portals) und **ersetzt nicht*
 | Pilotenhinweis           | verständlicher Text des Warts zu einem Kat-2-Punkt, für alle Piloten sichtbar      |
 | Ampel                    | `gruen` Klar · `gelb` Klar mit Hinweisen · `rot` Gesperrt                          |
 | Freigabe                 | neues Konto (`ausstehend`) muss vom Admin freigegeben werden                       |
+| Aufgabe                  | interne To-do der Werkstatt mit Frist, Zuständigem, Teilschritten. Keine Ampel     |
+| Arbeitsstand             | Kommentar an einer Aufgabe: was ist gemacht, was fehlt (Übergabe)                  |
 
-Rollen: `pilot` (Standard) · `wart` · `admin`. Freigabe: `ausstehend` · `freigegeben` · `abgelehnt`.
+Rollen: `pilot` (Standard) · `wart` · `admin`. Freigabe: `ausstehend` · `freigegeben` · `abgelehnt` · `deaktiviert`.
 Meldungsstatus: `neu` → (Kat 1) `in_arbeit` → `erledigt` · (Kat 2) `zurueckgestellt` → `in_arbeit` → `erledigt` · (Kat 3) `abgelegt`.
+Aufgabenstatus: `offen` → `in_arbeit` ⇄ `wartet` → `erledigt` / `verworfen` (wieder öffnen mit Begründung).
 
 ## Fachregeln
 
 - **Ampel wird in der View `aircraft_overview` berechnet**, nie im Frontend. Rot: manuelle Sperre, offene Kat 1 oder nicht eingestufte Meldung mit „vorläufig nicht flugklar“. Gelb: offener Punkt mit sichtbarem Pilotenhinweis. Sonst grün.
 - Kat 1: `pilotenhinweis` ist Pflicht und immer sichtbar (= Sperrgrund für Piloten). Erledigen erfordert die Bestätigung „Flugzeug ist wieder flugklar“ (Verlaufseintrag).
 - Kat 2: Ziel Pflicht, Pilotenhinweis optional. Kat 3: Begründung Pflicht, wird Rückmeldung an den Melder.
+- Erledigen einer Meldung braucht die durchgeführte Maßnahme (Rückmeldung an den Melder).
+- Aufgaben: nur Warte/Admins sehen sie, kein Einfluss auf die Ampel, keine Wartungsfristen nach Stunden/Starts. „Wartet“/„Verworfen“/„Wieder öffnen“ brauchen Text, „Erledigt“ nur ohne offene Teilschritte. Verlauf in `task_events`.
 - Warte dürfen umstufen (Verlaufseintrag). Melder können nach dem Absenden nur noch einen Nachtrag kommentieren.
 - Piloten sehen Namen der Warte, aber nicht, wer fremde Meldungen abgegeben hat.
 - Jede Erstellung, Einstufung, jeder Statuswechsel, jede Sperre/Entsperrung und jeder Kommentar erzeugt einen Eintrag in `report_events`, und zwar in RPCs bzw. Triggern, nicht im Frontend.
@@ -43,7 +48,7 @@ Meldungsstatus: `neu` → (Kat 1) `in_arbeit` → `erledigt` · (Kat 2) `zurueck
 ## Sicherheitsregeln (nicht verhandelbar)
 
 - RLS auf **allen** Tabellen. Hilfsfunktionen (`is_approved()`, `current_rolle()`, `is_wart()`, `is_admin()`) als `security definer`, `stable`, mit `search_path = ''`.
-- Clients schreiben nur über RPCs (`report_create`, `report_einstufen`, `report_set_status`, `report_comment`, `aircraft_sperren`, `aircraft_entsperren`, `admin_update_user`). Neue Schreibwege ebenfalls als RPC, die den Verlauf schreibt. Neue Funktionen: `execute` für `public`/`anon` entziehen.
+- Clients schreiben nur über RPCs (`report_create`, `report_einstufen`, `report_set_status`, `report_comment`, `aircraft_sperren`, `aircraft_entsperren`, `admin_update_user`, `task_create`, `task_update`, `task_set_status`, `task_comment`, `task_item_add`, `task_item_set`, `task_item_delete`). Neue Schreibwege ebenfalls als RPC, die den Verlauf schreibt. Neue Funktionen: `execute` für `public`/`anon` entziehen.
 - Niemand ändert seine eigene `rolle` oder `freigabe`. Nur über die RPC `admin_update_user` (prüft `is_admin()`), direkter UPDATE wird blockiert.
 - Ausstehende und abgelehnte Nutzer bekommen per RLS keine Daten, nicht nur in der UI.
 - Service-Role-/Secret-Key nie ins Frontend und nie ins Repo. Keine `.env` committen, nur `.env.example`.
@@ -90,7 +95,9 @@ docs/            konzept · handoff · entscheidungen
 
 ## UI
 
-- Deutsch, mobile-first, große Touch-Flächen (mind. 48 px hoch), hoher Kontrast (Sonne, Handschuhe).
+- Deutsch, mobile-first, große Touch-Flächen (mind. 48 px hoch am Handy, am Desktop dichter), hoher Kontrast (Sonne, Handschuhe).
+- Design „Verwaltungssoftware“: Farben als Tokens in `src/index.css`, Bausteine in `src/components/` (`Panel`, `Badge`, `Button`, `Form`, `Dialog`). Kennzeichen, Nummern und Zeiten in Mono-Schrift, Zeiten absolut (`@/lib/format`).
+- Schreibende Aktionen über `useAktion` (`@/lib/useAktion`): Toast + alle Daten neu laden.
 - Ampel immer mit **Farbe + Symbol + Text** (Komponente `@/components/Ampel`).
 - Footer-Hinweis bleibt: „Internes Meldetool des Vereins – ersetzt nicht Bordbuch oder Prüferfreigabe.“
 - Fotos im Browser verkleinern (lange Kante ca. 1600 px, JPEG ca. 0,8), maximal 3 pro Meldung.
