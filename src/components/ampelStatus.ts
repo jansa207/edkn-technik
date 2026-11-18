@@ -1,5 +1,7 @@
-// Ampel-Werte entsprechen später der Spalte `ampel` der View `aircraft_overview`.
-export type AmpelStatus = 'gruen' | 'gelb' | 'rot'
+import type { Database } from '@/lib/database.types'
+
+// Werte der Spalte `ampel` der View `aircraft_overview` (Enum public.ampel)
+export type AmpelStatus = Database['public']['Enums']['ampel']
 
 export const AMPEL_TEXT: Record<AmpelStatus, string> = {
   gruen: 'Klar',
