@@ -1,0 +1,18 @@
+@import 'tailwindcss';
+
+/* Farben mit hohem Kontrast (Sonne am Flugplatz). Ampel immer mit Farbe + Symbol + Text. */
+@theme {
+  --color-marine: #0b2545;
+  --color-marine-hell: #13315c;
+  --color-ampel-gruen: #15803d;
+  --color-ampel-gelb: #facc15;
+  --color-ampel-rot: #b91c1c;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  @apply bg-white text-neutral-950 antialiased;
+}

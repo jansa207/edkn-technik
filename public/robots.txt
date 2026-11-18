@@ -1,0 +1,3 @@
+# Internes Vereinstool – nicht indexieren
+User-agent: *
+Disallow: /
