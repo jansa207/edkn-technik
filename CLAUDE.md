@@ -33,7 +33,8 @@ Meldungsstatus: `neu` → (Kat 1) `in_arbeit` → `erledigt` · (Kat 2) `zurueck
 ## Fachregeln
 
 - **Ampel wird in der View `aircraft_overview` berechnet**, nie im Frontend. Rot: manuelle Sperre, offene Kat 1 oder nicht eingestufte Meldung mit „vorläufig nicht flugklar“. Gelb: offener Punkt mit sichtbarem Pilotenhinweis. Sonst grün.
-- Kat 1 erledigen erfordert die Bestätigung „Flugzeug ist wieder flugklar“ (Verlaufseintrag).
+- Kat 1: `pilotenhinweis` ist Pflicht und immer sichtbar (= Sperrgrund für Piloten). Erledigen erfordert die Bestätigung „Flugzeug ist wieder flugklar“ (Verlaufseintrag).
+- Kat 2: Ziel Pflicht, Pilotenhinweis optional. Kat 3: Begründung Pflicht, wird Rückmeldung an den Melder.
 - Warte dürfen umstufen (Verlaufseintrag). Melder können nach dem Absenden nur noch einen Nachtrag kommentieren.
 - Piloten sehen Namen der Warte, aber nicht, wer fremde Meldungen abgegeben hat.
 - Jede Erstellung, Einstufung, jeder Statuswechsel, jede Sperre/Entsperrung und jeder Kommentar erzeugt einen Eintrag in `report_events`, und zwar in RPCs bzw. Triggern, nicht im Frontend.
@@ -41,7 +42,8 @@ Meldungsstatus: `neu` → (Kat 1) `in_arbeit` → `erledigt` · (Kat 2) `zurueck
 
 ## Sicherheitsregeln (nicht verhandelbar)
 
-- RLS auf **allen** Tabellen. Hilfsfunktionen (`is_approved()`, `current_role()`, `is_admin()`) als `security definer`, `stable`, mit festem `search_path`.
+- RLS auf **allen** Tabellen. Hilfsfunktionen (`is_approved()`, `current_rolle()`, `is_wart()`, `is_admin()`) als `security definer`, `stable`, mit `search_path = ''`.
+- Clients schreiben nur über RPCs (`report_create`, `report_einstufen`, `report_set_status`, `report_comment`, `aircraft_sperren`, `aircraft_entsperren`, `admin_update_user`). Neue Schreibwege ebenfalls als RPC, die den Verlauf schreibt. Neue Funktionen: `execute` für `public`/`anon` entziehen.
 - Niemand ändert seine eigene `rolle` oder `freigabe`. Nur über die RPC `admin_update_user` (prüft `is_admin()`), direkter UPDATE wird blockiert.
 - Ausstehende und abgelehnte Nutzer bekommen per RLS keine Daten, nicht nur in der UI.
 - Service-Role-/Secret-Key nie ins Frontend und nie ins Repo. Keine `.env` committen, nur `.env.example`.
@@ -65,9 +67,15 @@ npm run lint         # oxlint, Warnungen sind Fehler
 npm run format       # Prettier schreibt
 npm test             # Vitest einmal
 npm run build        # Typecheck + Produktions-Build
+npm run db:start     # lokale Supabase (Docker)
+npm run db:reset     # Migrationen + Seed neu einspielen
+npm run db:test      # pgTAP-Tests (RLS, Fachlogik)
+npm run db:types     # src/lib/database.types.ts neu erzeugen
 ```
 
-Vor jedem Commit: `npm run typecheck && npm run lint && npm run format:check && npm test`.
+Testkonten lokal: `admin@test.local`, `wart@test.local`, `pilot@test.local`, `pilot2@test.local`, `neu@test.local` (ausstehend), `abgelehnt@test.local`, Passwort jeweils `edkn-test`.
+
+Vor jedem Commit: `npm run typecheck && npm run lint && npm run format:check && npm test`, bei Datenbank-Änderungen zusätzlich `npm run db:reset && npm run db:lint && npm run db:test && npm run db:types`.
 
 ## Struktur
 

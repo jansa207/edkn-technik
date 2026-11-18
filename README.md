@@ -8,7 +8,7 @@ Vereins-Web-App für den technischen Zustand der Vereinsflugzeuge am Flugplatz E
 
 ## Setup in 5 Minuten
 
-Voraussetzungen: [Node.js 22](https://nodejs.org/) oder neuer, Git und ab Schritt 2 [Docker Desktop](https://www.docker.com/products/docker-desktop/) (für die lokale Supabase).
+Voraussetzungen: [Node.js 22](https://nodejs.org/) oder neuer, Git und [Docker Desktop](https://www.docker.com/products/docker-desktop/) (für die lokale Supabase, unter Windows mit WSL 2).
 
 ```bash
 git clone https://github.com/jansa207/edkn-technik.git
@@ -20,9 +20,60 @@ npm run dev
 
 Dann <http://localhost:5173> öffnen. Am Handy im selben WLAN geht es mit `npm run dev -- --host` und der angezeigten Netzwerk-Adresse.
 
-### Lokale Datenbank (ab Schritt 2)
+### Lokale Datenbank
 
-Die Anleitung für `supabase start`, Testkonten und den ersten Admin kommt mit Schritt 2 hierher.
+Docker Desktop muss laufen. Die Supabase-CLI ist schon als Entwickler-Paket installiert (`npx supabase …`).
+
+```bash
+npm run db:start
+```
+
+Das startet Postgres, Auth, Storage, Studio und Mailpit, spielt alle Migrationen ein und lädt die Testdaten aus `supabase/seed.sql`. Die Werte in `.env.example` passen dazu, `cp .env.example .env.local` reicht.
+
+| Was                          | Adresse                  |
+| ---------------------------- | ------------------------ |
+| API                          | <http://127.0.0.1:54321> |
+| Studio (Datenbank ansehen)   | <http://127.0.0.1:54323> |
+| Mailpit (Bestätigungs-Mails) | <http://127.0.0.1:54324> |
+
+Weitere Befehle:
+
+| Befehl             | Was es tut                                                      |
+| ------------------ | --------------------------------------------------------------- |
+| `npm run db:reset` | Datenbank neu aufsetzen (nach jedem Pull mit neuen Migrationen) |
+| `npm run db:test`  | RLS- und Fachlogik-Tests (pgTAP)                                |
+| `npm run db:lint`  | PL/pgSQL-Funktionen prüfen                                      |
+| `npm run db:types` | TypeScript-Typen nach `src/lib/database.types.ts` erzeugen      |
+| `npm run db:stop`  | Container stoppen                                               |
+
+Neue Schema-Änderung: `npx supabase migration new <name>`, SQL schreiben, `npm run db:reset`, `npm run db:test`, `npm run db:types`. Bestehende Migrationen nie ändern.
+
+### Testkonten (nur lokal)
+
+Alle haben das Passwort **`edkn-test`**.
+
+| E-Mail                 | Rolle | Freigabe    |
+| ---------------------- | ----- | ----------- |
+| `admin@test.local`     | admin | freigegeben |
+| `wart@test.local`      | wart  | freigegeben |
+| `pilot@test.local`     | pilot | freigegeben |
+| `pilot2@test.local`    | pilot | freigegeben |
+| `neu@test.local`       | pilot | ausstehend  |
+| `abgelehnt@test.local` | pilot | abgelehnt   |
+
+Die Testdaten zeigen jede Ampelfarbe: D-9001 grün, D-9002 gelb (mit 1 Meldung in Prüfung), D-9003 rot (Kat 1), D-KDEM rot (vorläufig nicht flugklar), D-MDEM rot (manuelle Sperre).
+
+### Erster Admin (Supabase in der Cloud)
+
+Im echten Projekt gibt es keine Testkonten. Der erste Admin registriert sich normal in der App, bestätigt die Mail und wird dann einmalig im SQL-Editor des Supabase-Dashboards freigeschaltet:
+
+```sql
+update public.profiles
+set rolle = 'admin', freigabe = 'freigegeben', freigegeben_am = now()
+where email = 'deine@mail.de';
+```
+
+Alle weiteren Nutzer gibt der Admin danach in der App frei.
 
 ## Befehle
 

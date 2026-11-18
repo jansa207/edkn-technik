@@ -28,4 +28,23 @@ jobs:
       - run: npm run format:check
       - run: npm test
       - run: npm run build
-  # Ab Schritt 2 kommt hier ein zweiter Job dazu: Supabase starten und RLS-Tests (supabase test db).
+
+  db:
+    name: Datenbank (Migrationen, Lint, RLS-Tests, Typen)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      # Nur Postgres starten (Migrationen + Seed), das reicht für Tests und Typen
+      - run: npx supabase db start
+      - run: npm run db:lint
+      - run: npm run db:test
+      - name: Generierte Typen sind aktuell
+        run: |
+          npx supabase gen types typescript --local > "$RUNNER_TEMP/types.ts"
+          npx prettier --stdin-filepath src/lib/database.types.ts < "$RUNNER_TEMP/types.ts" > "$RUNNER_TEMP/types.fmt.ts"
+          diff -u src/lib/database.types.ts "$RUNNER_TEMP/types.fmt.ts" || (echo "::error::src/lib/database.types.ts ist veraltet. Bitte 'npm run db:types' ausführen." && exit 1)
