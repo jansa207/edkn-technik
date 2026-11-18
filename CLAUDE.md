@@ -53,7 +53,7 @@ Meldungsstatus: `neu` → (Kat 1) `in_arbeit` → `erledigt` · (Kat 2) `zurueck
 - React 19 + TypeScript 7 (strict) + Vite 8, React Router, TanStack Query, Tailwind CSS 4, `vite-plugin-pwa`
 - Supabase (Auth, Postgres, Storage), lokal mit der Supabase-CLI (`npx supabase start`, braucht Docker)
 - Tests: Vitest + Testing Library; RLS-Tests mit pgTAP (`supabase test db`)
-- Lint: oxlint · Format: Prettier · Hosting: Cloudflare Pages (Preview pro PR)
+- Lint: oxlint · Format: Prettier · Hosting: Cloudflare Workers mit statischen Assets (`wrangler.jsonc`, Preview pro Branch)
 - Import-Alias `@/` → `src/`
 
 ## Befehle
@@ -89,7 +89,7 @@ docs/            konzept · handoff · entscheidungen
 
 ## Team-Workflow
 
-- `main` ist geschützt. Pro Issue ein Branch (`feat/…`, `fix/…`, `chore/…`, `docs/…`) → PR → 1 Review → Squash-Merge, nur bei grüner CI.
+- `main` nur über PRs ändern (Branch-Schutz folgt, siehe `docs/entscheidungen.md`). Pro Issue ein Branch (`feat/…`, `fix/…`, `chore/…`, `docs/…`) → PR → 1 Review → Squash-Merge, nur bei grüner CI.
 - Commits nach Conventional Commits, auf Deutsch: `feat: Meldeformular mit Fotos`.
 - Datenbank **nur über Migrationen** in `supabase/migrations`. Bestehende Migrationen nie editieren, immer eine neue anlegen. Nach jedem Pull: `npx supabase db reset`. Nie Schema-Änderungen im Supabase-Dashboard.
 - Typen nach Schema-Änderungen neu erzeugen (`supabase gen types`).

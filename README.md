@@ -40,26 +40,27 @@ Die Anleitung für `supabase start`, Testkonten und den ersten Admin kommt mit S
 
 1. Issue nehmen oder anlegen, Branch `feat/…`, `fix/…` oder `chore/…` erstellen.
 2. Änderungen committen (Conventional Commits auf Deutsch, z. B. `feat: Meldeformular mit Fotos`).
-3. PR öffnen. Die CI prüft Typecheck, Lint, Format, Tests und Build. Cloudflare Pages baut einen Preview-Link, den man am Handy testen kann.
+3. PR öffnen. Die CI prüft Typecheck, Lint, Format, Tests und Build. Cloudflare baut einen Preview-Link, den man am Handy testen kann.
 4. Ein anderes Teammitglied reviewt, dann Squash-Merge.
 
 Details stehen in [`CLAUDE.md`](CLAUDE.md) unter „Team-Workflow“.
 
-## Hosting (Cloudflare Pages)
+## Hosting (Cloudflare Workers)
 
-Einstellungen beim Verbinden des Repos in Cloudflare Pages:
+Die App läuft als Cloudflare Worker mit statischen Assets. Die Konfiguration steht in [`wrangler.jsonc`](wrangler.jsonc): Cloudflare liefert `dist/` aus, unbekannte Pfade bekommen `index.html` (Single-Page-App). `public/_headers` setzt Sicherheits-Header und `noindex`, damit Suchmaschinen die App nicht aufnehmen.
 
-| Feld                   | Wert                  |
-| ---------------------- | --------------------- |
-| Framework preset       | `Vite` (oder „None“)  |
-| Build command          | `npm run build`       |
-| Build output directory | `dist`                |
-| Production branch      | `main`                |
-| Umgebungsvariable      | `NODE_VERSION` = `22` |
+Einstellungen in Cloudflare unter Workers & Pages → `edkn-technik` → Settings → Build:
 
-Ab Schritt 3 kommen `VITE_SUPABASE_URL` und `VITE_SUPABASE_PUBLISHABLE_KEY` des Supabase-Dev-Projekts (Region EU/Frankfurt) als Umgebungsvariablen dazu. Niemals den Secret-/Service-Role-Key dort eintragen.
+| Feld                               | Wert                                |
+| ---------------------------------- | ----------------------------------- |
+| Git-Repository                     | `edkn-technik`                      |
+| Production branch                  | `main`                              |
+| Build command                      | `npm run build`                     |
+| Deploy command                     | `npx wrangler deploy`               |
+| Builds for non-production branches | aktiviert (Preview-Link pro Branch) |
+| Umgebungsvariable (Build)          | `NODE_VERSION` = `22`               |
 
-`public/_headers` setzt Sicherheits-Header und `noindex`, damit Suchmaschinen die App nicht aufnehmen.
+Ab Schritt 3 kommen `VITE_SUPABASE_URL` und `VITE_SUPABASE_PUBLISHABLE_KEY` des Supabase-Dev-Projekts (Region EU/Frankfurt) als **Build-Variablen** dazu (Vite baut sie ins Frontend ein). Niemals den Secret-/Service-Role-Key dort eintragen.
 
 ## Vor dem echten Betrieb
 

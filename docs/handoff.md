@@ -169,7 +169,7 @@ view aircraft_overview   ampel, sperrgrund, anzahl_in_pruefung, hinweise[] je Fl
   - große Touch-Flächen und hoher Kontrast (Sonne und Handschuhe am Flugplatz)
   - die Ampel immer mit **Farbe + Symbol + Text**, nie nur mit Farbe
 - **Footer-Hinweis:** „Internes Meldetool des Vereins – ersetzt nicht Bordbuch oder Prüferfreigabe.“
-- **Hosting** (nach dem lokalen Prototyp): Cloudflare Pages mit Preview je PR, angebunden an ein Supabase-Dev-Projekt in der Region EU (Frankfurt)
+- **Hosting** (nach dem lokalen Prototyp): Cloudflare Workers (statische Assets) mit Preview je Branch, angebunden an ein Supabase-Dev-Projekt in der Region EU (Frankfurt)
 
 ### Ordnerstruktur (Vorschlag)
 

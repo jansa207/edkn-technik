@@ -1,0 +1,9 @@
+# Einheitlich LF im Repo und im Arbeitsordner (sonst schlägt Prettier unter Windows fehl)
+* text=auto eol=lf
+
+# Binärdateien nie umwandeln
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.ico binary
+*.webp binary

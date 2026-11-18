@@ -30,3 +30,6 @@ npm-debug.log*
 .idea
 .DS_Store
 *.sw?
+
+# Cloudflare Wrangler (lokal)
+.wrangler
