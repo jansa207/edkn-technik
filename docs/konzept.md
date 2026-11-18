@@ -89,7 +89,7 @@ Argument für den Werkstattleiter: Ein vom Wart bewerteter Hinweis beruhigt eher
 - **Frontend:** React + TypeScript + Vite + `vite-plugin-pwa`, Tailwind CSS. Ein verbreiteter Stack, mit dem Claude Code sehr gut klarkommt.
 - **Backend:** Supabase. Das bringt Postgres, Auth, Foto-Speicher, Edge Functions und **Row Level Security** mit. RLS ist genau das Werkzeug für „Wart sieht alles, Pilot nur Freigegebenes und Eigenes, Nicht-Freigegebene sehen nichts“. Region: EU (Frankfurt), wegen DSGVO.
 - **Lokale Entwicklung:** Supabase CLI (`supabase start`, braucht Docker). Das Schema ändert sich nur über Migrationen im Repo.
-- **Hosting:** Cloudflare Pages (Gratis-Stufe), mit einem **Preview-Link pro Pull Request**. Vercel scheidet aus, weil der Gratis-Tarif bei privaten Repos keine Deployments von Mitstreitern baut (siehe `docs/entscheidungen.md`).
+- **Hosting:** Cloudflare Workers mit statischen Assets (Gratis-Stufe), mit einem **Preview-Link pro Branch bzw. Pull Request**. Vercel scheidet aus, weil der Gratis-Tarif bei privaten Repos keine Deployments von Mitstreitern baut (siehe `docs/entscheidungen.md`).
 - **Alternative:** PocketBase auf einem kleinen eigenen Server (ein paar € im Monat). Alle Daten liegen dann beim Verein, dafür gibt es mehr Admin-Aufwand.
 - **Offline:** Meldungen lokal speichern und senden, sobald wieder Netz da ist. Am Flugplatz ist der Empfang oft mies.
 - **Benachrichtigungen:** E-Mail und später Web-Push. Auf dem iPhone geht Push nur, wenn die App auf dem Home-Bildschirm installiert ist.

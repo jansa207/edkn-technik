@@ -1,0 +1,11 @@
+// Cloudflare Workers mit statischen Assets (Workers Builds baut bei jedem Push: `npm run build`, dann `npx wrangler deploy`).
+// Kein eigener Worker-Code: Cloudflare liefert nur den Inhalt von dist/ aus. _headers aus public/ gilt weiterhin.
+{
+  "name": "edkn-technik",
+  "compatibility_date": "2026-11-01",
+  "assets": {
+    "directory": "./dist",
+    // Unbekannte Pfade (z. B. /flugzeuge/123) liefern index.html, React Router übernimmt
+    "not_found_handling": "single-page-application",
+  },
+}
