@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Platzhalter: Segelflugzeug von oben auf dunkelblauem Grund -->
+  <rect width="512" height="512" fill="#0b2545"/>
+  <g fill="#ffffff">
+    <path d="M40 236 Q256 216 472 236 L472 252 Q256 244 40 252 Z"/>
+    <path d="M246 150 Q256 132 266 150 L262 400 L250 400 Z"/>
+    <path d="M206 384 L306 384 L306 396 L206 396 Z"/>
+  </g>
+  <circle cx="256" cy="440" r="14" fill="#facc15"/>
+</svg>
