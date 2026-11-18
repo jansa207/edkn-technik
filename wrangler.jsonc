@@ -8,4 +8,7 @@
     // Unbekannte Pfade (z. B. /flugzeuge/123) liefern index.html, React Router übernimmt
     "not_found_handling": "single-page-application",
   },
+  // Pflicht für `npx wrangler preview` (Preview-Builds der Nicht-main-Branches). Leer reicht:
+  // Assets und Kompatibilität gelten von oben. https://developers.cloudflare.com/workers/previews/configuration/
+  "previews": {},
 }
