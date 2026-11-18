@@ -1,0 +1,32 @@
+# Abhängigkeiten und Build
+node_modules
+dist
+dist-ssr
+dev-dist
+coverage
+*.tsbuildinfo
+
+# Umgebungsvariablen: nie committen, nur .env.example
+.env
+.env.*
+!.env.example
+*.local
+
+# Persönliche Claude-Notizen
+CLAUDE.local.md
+
+# Supabase (lokal)
+supabase/.temp
+supabase/.branches
+
+# Logs
+logs
+*.log
+npm-debug.log*
+
+# Editor und System
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.sw?
