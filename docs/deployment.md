@@ -4,6 +4,16 @@ Auftrag für eine **lokale** Claude-Code-Sitzung auf dem Rechner der Projektleit
 
 Vorher lesen: `CLAUDE.md` (Regeln), `README.md` (Abschnitte „Erster Admin“ und „Hosting“).
 
+## Ergebnis (Stand 18.11.2026)
+
+Der Auftrag ist bis auf das Mergen von PR #4 durchgelaufen. Die Anleitung unten ist um das ergänzt, was dabei anders war als geplant.
+
+- **Adressen:** Production `https://edkn-technik.edkn.workers.dev` (nach dem Merge von PR #4), Preview pro Branch `https://<branch>-edkn-technik.edkn.workers.dev`.
+- **Supabase:** Projekt `edkn-technik` in Frankfurt (Free) angelegt, alle Migrationen ohne Seed eingespielt, Auth-URLs gesetzt, erster Admin angelegt. Wem die Konten gehören: `docs/entscheidungen.md`.
+- **Erster Cloudflare-Fehler:** Der Befehl für Nicht-main-Branches war `npx wrangler versions upload`. In der neuen Preview-Umgebung von Cloudflare führte das zu einem Namenskonflikt. Nach der Umstellung auf `npx wrangler preview` fehlte der `previews`-Block in `wrangler.jsonc`. Gelöst mit PR [jansa207/edkn-technik#5](https://github.com/jansa207/edkn-technik/pull/5) (`"previews": {}`). Seitdem sind die Preview-Builds grün.
+- **Rauchtest:** auf der Preview komplett bestanden (alle Punkte in Schritt 6).
+- **Security Advisor:** keine Tabelle ohne RLS. Die übrigen Hinweise sind unten unter „Offen, vor echtem Vereinsbetrieb“ aufgeführt.
+
 ## Ausgangslage (Stand 18.11.2026)
 
 - Code: PR [jansa207/edkn-technik#4](https://github.com/jansa207/edkn-technik/pull/4), Branch `claude/quirky-heisenberg-9hs9dk` (App v0.2). Die GitHub-CI ist grün (App und Datenbank).
@@ -22,6 +32,13 @@ Vorher lesen: `CLAUDE.md` (Regeln), `README.md` (Abschnitte „Erster Admin“ u
 - Schritte im Browser macht die Projektleitung, z. B. Konten anlegen, Dashboard-Einstellungen oder Keys kopieren. Claude sagt genau, wo sie klicken muss, und wartet. Kommandos im Terminal darf Claude selbst ausführen.
 - Code-Änderungen, falls nötig, auf einem eigenen Branch (`fix/…`) mit PR, nicht direkt auf `main`. Den PR mergt die Projektleitung.
 - Kosten: nur Gratis-Tarife. Vor allem, was Geld kostet, fragen.
+
+## Supabase-CLI gegen die Cloud
+
+- **`--remote` statt `--linked`:** Ohne Flag arbeiten `db push`, `migration list`, `gen types` usw. gegen die **lokale** Datenbank. Nach `supabase link` mit `--remote` das verknüpfte Cloud-Projekt ansprechen, z. B. `npx supabase db push --remote --dry-run`, `npx supabase migration list --remote`, `npx supabase gen types typescript --remote`.
+- **Security Advisor im Terminal:** `npx supabase db advisors --remote --type security`
+- **SQL nur lesend:** `npx supabase db query --remote --read-only "<SQL>"`. Schreibendes SQL (z. B. den ersten Admin) tippt die Projektleitung im SQL Editor des Dashboards.
+- **Windows:** In PowerShell blockiert die Ausführungsrichtlinie oft `npx.ps1`. Dann `npx.cmd supabase …` bzw. `npx.cmd wrangler …` schreiben.
 
 ## Schritte
 
@@ -58,30 +75,30 @@ npx supabase link --project-ref <PROJECT-ID>
 (Fragt nach dem Datenbank-Passwort. Die Projektleitung tippt es selbst ein.)
 
 ```bash
-npx supabase db push --dry-run
+npx supabase db push --remote --dry-run
 ```
 
 Die Liste muss genau die Dateien aus `supabase/migrations/` zeigen, und zwar ohne Seed. Erst dann:
 
 ```bash
-npx supabase db push
+npx supabase db push --remote
 ```
 
 Kontrolle:
 
 ```bash
-npx supabase migration list --linked
+npx supabase migration list --remote
 ```
 
 Lokal und remote müssen übereinstimmen. Zusätzlich prüfen, ob das Schema remote dem Repo entspricht:
 
 ```bash
-npx supabase gen types typescript --linked > /tmp/remote.types.ts && npx prettier --stdin-filepath src/lib/database.types.ts < /tmp/remote.types.ts | diff -u src/lib/database.types.ts - && echo "Schema identisch"
+npx supabase gen types typescript --remote > /tmp/remote.types.ts && npx prettier --stdin-filepath src/lib/database.types.ts < /tmp/remote.types.ts | diff -u src/lib/database.types.ts - && echo "Schema identisch"
 ```
 
 Kleine Unterschiede nur bei `__InternalSupabase` bzw. der PostgREST-Version sind okay. Fehlen Tabellen oder Funktionen, abbrechen und melden.
 
-Dann im Dashboard unter **Advisors → Security Advisor** nachsehen. Es darf keine Tabelle ohne RLS geben. Andere Warnungen notieren und melden, aber nicht im Dashboard „reparieren“.
+Dann im Dashboard unter **Advisors → Security Advisor** nachsehen (oder im Terminal `npx supabase db advisors --remote --type security`). Es darf keine Tabelle ohne RLS geben. Andere Warnungen notieren und melden, aber nicht im Dashboard „reparieren“.
 
 ### 3. Auth einstellen (Browser, Projektleitung)
 
@@ -104,16 +121,18 @@ Passwort-Reset und Bestätigung leiten auf diese Adressen um. Ohne Eintrag schla
 1. Workers & Pages → `edkn-technik` → **Deployments/Builds**, den fehlgeschlagenen Build öffnen und das Protokoll an Claude geben. Claude ermittelt die Ursache.
 2. **Settings → Build** prüfen (Sollwerte, siehe auch README):
 
-   | Feld                                 | Wert                           |
-   | ------------------------------------ | ------------------------------ |
-   | Production branch                    | `main`                         |
-   | Build command                        | `npm run build`                |
-   | Deploy command                       | `npx wrangler deploy`          |
-   | Non-production branch deploy command | `npx wrangler versions upload` |
-   | Builds for non-production branches   | an                             |
-   | Root directory                       | leer bzw. `/`                  |
+   | Feld                               | Wert                   |
+   | ---------------------------------- | ---------------------- |
+   | Production branch                  | `main`                 |
+   | Build command                      | `npm run build`        |
+   | Deploy command                     | `npx wrangler deploy`  |
+   | Builds for non-production branches | an                     |
+   | Previews → Base: Preview command   | `npx wrangler preview` |
+   | Root directory                     | `/`                    |
 
-3. **Settings → Build → Variables and secrets**, als **Build-Variablen** (nicht als Runtime-Variablen des Workers, denn Vite baut sie beim Build ein):
+   **Nicht** `npx wrangler versions upload` als Befehl für Nicht-main-Branches verwenden (Namenskonflikt in der Preview-Umgebung, siehe „Ergebnis“). `npx wrangler preview` braucht `"previews": {}` in `wrangler.jsonc`, das ist seit PR #5 drin.
+
+3. **Settings → Build → Variables and secrets**, als **Build-Variablen** für Production **und** Previews (nicht als Runtime-Variablen des Workers, denn Vite baut sie beim Build ein). Jede Preview-Umgebung hat eine eigene Kopie der Build-Einstellungen, also dort ebenfalls prüfen:
 
    | Name                            | Wert                                                         |
    | ------------------------------- | ------------------------------------------------------------ |
@@ -131,6 +150,8 @@ Bleibt der Build rot und lässt sich die Ursache nicht in den Einstellungen find
 ```bash
 npm ci && npm run build && npx wrangler deploy --dry-run
 ```
+
+Für Preview-Builds zusätzlich prüfen, ob `wrangler.jsonc` den Block `"previews": {}` enthält.
 
 ### 5. Ersten Admin anlegen (Projektleitung, Claude führt)
 
@@ -172,9 +193,15 @@ Claude meldet am Ende:
 - welche Punkte des Rauchtests bestanden sind und was offen bleibt,
 - Hinweise aus dem Security Advisor.
 
-Dann `README.md` → Abschnitt „Hosting“ aktualisieren: die Adresse, die tatsächlichen Cloudflare-Einstellungen und den Hinweis auf dieses Dokument. Außerdem in `docs/entscheidungen.md` festhalten, wem das Supabase-Projekt gehört. Beides als PR `docs/hosting`.
+Dann `README.md` → Abschnitt „Hosting“ aktualisieren: die Adresse, die tatsächlichen Cloudflare-Einstellungen und den Hinweis auf dieses Dokument. Außerdem in `docs/entscheidungen.md` festhalten, wem das Supabase-Projekt gehört. Beides als PR `docs/hosting`. (Erledigt am 18.11.2026, Ergebnis siehe oben.)
 
 ## Offen, vor echtem Vereinsbetrieb (nicht Teil dieses Auftrags)
+
+- **Vereinskonto:** Supabase-Projekt und Cloudflare-Worker liegen vorerst in privaten Konten der Projektleitung. Umzug auf ein Vereinskonto, siehe `docs/entscheidungen.md`.
+- **Security Advisor (Stand 18.11.2026)**, im Dashboard bewusst nicht „repariert“:
+  - ERROR „Security Definer View“ für `aircraft_overview` und `profile_names`: **gewollt.** Beide Views laufen mit den Rechten des Owners und filtern selbst, damit Piloten keine fremden Melder sehen (Kommentar in `supabase/migrations/20261118120000_grundschema.sql`). Vor dem Betrieb noch einmal bewusst bestätigen.
+  - WARN: 20 `security definer`-RPCs sind für `authenticated` ausführbar. Das ist die Architektur (Schreiben nur über RPCs, die selbst Rolle und Freigabe prüfen). Prüfen, ob jede davon wirklich `authenticated` braucht.
+  - WARN „Leaked Password Protection“ ist aus. Laut Supabase vermutlich nur im Pro-Tarif verfügbar. Beim Tarif-Entscheid mitbedenken.
 
 - **Eigener SMTP-Server:** Der eingebaute Mailversand von Supabase schafft nur wenige Mails pro Stunde und ist nur für Tests gedacht.
 - **Pausieren:** Gratis-Projekte bei Supabase werden nach etwa einer Woche ohne Nutzung angehalten. Dafür einen bezahlten Plan oder eine Lösung einplanen.

@@ -2,6 +2,15 @@
 
 Kurze Einträge: Datum, Entscheidung, Grund. Neueste oben. Offene Fragen gehören als Issue mit Label `frage` auf GitHub.
 
+## 18.11.2026 – Hosting (Supabase Cloud und Cloudflare)
+
+| Thema            | Entscheidung                                                                                                                                                                                                             | Grund                                                                                                                     |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------- |
+| Supabase-Projekt | Projekt `edkn-technik` (Ref `diwjtqsgkxwhmgnoxztr`, Region Central EU/Frankfurt, Free-Tarif) liegt **vorerst in der privaten Supabase-Organisation der Projektleitung** (GitHub `jansa207`). Kein Seed, nur Migrationen. | Schnell startklar zum Testen. Ein Vereinskonto gibt es noch nicht.                                                        |
+| Cloudflare-Konto | Der Worker `edkn-technik` (Production `https://edkn-technik.edkn.workers.dev`) liegt ebenfalls im **privaten Cloudflare-Konto** der Projektleitung.                                                                      | Wie oben.                                                                                                                 |
+| Umzug            | **Offen:** Umzug beider Projekte auf ein Vereinskonto, spätestens vor echtem Vereinsbetrieb. Dabei Build-Variablen, Auth-URLs und den Publishable Key neu setzen.                                                        | Das Tool gehört dem Verein, nicht einer Person. Zugänge sollen bei einem Wechsel der Projektleitung nicht verloren gehen. |
+| Preview-Builds   | Nicht-main-Branches bauen mit `npx wrangler preview` (Cloudflare-Previews), dafür steht `"previews": {}` in `wrangler.jsonc`. Ersetzt `npx wrangler versions upload`.                                                    | `versions upload` scheiterte in der neuen Preview-Umgebung an einem Namenskonflikt. Details in `docs/deployment.md`.      |
+
 ## 18.11.2026 – App v0.2 (Design v3 und Werkstatt-Aufgaben)
 
 | Thema               | Entscheidung                                                                                                                                                                                                                                                                                                      | Grund                                                                                                                        |
