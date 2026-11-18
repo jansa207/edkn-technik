@@ -139,3 +139,93 @@ insert into public.report_events (report_id, aircraft_id, user_id, typ, text, in
   -- D-MDEM: manuelle Sperre
   (null, '00000000-0000-4000-b000-000000000005', '00000000-0000-4000-a000-000000000002',
    'sperre', 'Jahresnachprüfung läuft', false, now() - interval '5 days');
+
+-- -----------------------------------------------------------------------------
+-- Werkstatt-Aufgaben (nur für Warte sichtbar)
+--   A-0001 Spornrad D-9003, wartet auf Ersatzteil, halb erledigt
+--   A-0002 Ölverlust D-KDEM, in Arbeit mit Arbeitsstand-Kommentar
+--   A-0003 Fahrtmesser D-9002, offen, Winterarbeit
+--   A-0004 allgemeine Hallenaufgabe, überfällig
+--   A-0005 Haubenverriegelung D-9001, erledigt
+-- -----------------------------------------------------------------------------
+insert into public.tasks (
+  id, aircraft_id, report_id, titel, beschreibung, status, prioritaet, faellig_am,
+  zustaendig_id, wartet_auf, erstellt_von, erledigt_von, erledigt_am, created_at, updated_at
+)
+select * from (values
+  ('00000000-0000-4000-d000-000000000001'::uuid, '00000000-0000-4000-b000-000000000003'::uuid,
+   '00000000-0000-4000-c000-000000000004'::uuid, 'Spornrad tauschen',
+   'Spornrad hat Spiel, Achse prüfen und ggf. mit tauschen.', 'wartet'::public.aufgabe_status,
+   'hoch'::public.aufgabe_prioritaet, (now() at time zone 'Europe/Berlin')::date + 2,
+   '00000000-0000-4000-a000-000000000002'::uuid, 'Ersatzteil bestellt, Lieferung ca. Freitag',
+   '00000000-0000-4000-a000-000000000002'::uuid, null::uuid, null::timestamptz,
+   now() - interval '1 day', now() - interval '3 hours'),
+  ('00000000-0000-4000-d000-000000000002', '00000000-0000-4000-b000-000000000004',
+   '00000000-0000-4000-c000-000000000005', 'Ölverlust am Motor suchen',
+   'Öl unter dem Motor nach dem letzten Flug. Leitungen und Dichtungen prüfen.', 'in_arbeit',
+   'hoch', (now() at time zone 'Europe/Berlin')::date,
+   '00000000-0000-4000-a000-000000000002', null, '00000000-0000-4000-a000-000000000001', null, null,
+   now() - interval '50 minutes', now() - interval '20 minutes'),
+  ('00000000-0000-4000-d000-000000000003', '00000000-0000-4000-b000-000000000002',
+   '00000000-0000-4000-c000-000000000002', 'Fahrtmesser tauschen',
+   'Fahrtmesser zeigt ca. 4 km/h zu wenig. Tausch im Rahmen der Winterarbeit.', 'offen',
+   'normal', make_date(2027, 2, 28),
+   null, null, '00000000-0000-4000-a000-000000000002', null, null,
+   now() - interval '6 days', now() - interval '6 days'),
+  ('00000000-0000-4000-d000-000000000004', null, null, 'Reifenfüller in der Halle prüfen',
+   'Manometer zeigt unplausible Werte. Mit zweitem Gerät vergleichen.', 'offen',
+   'niedrig', (now() at time zone 'Europe/Berlin')::date - 3,
+   '00000000-0000-4000-a000-000000000001', null, '00000000-0000-4000-a000-000000000001', null, null,
+   now() - interval '10 days', now() - interval '10 days'),
+  ('00000000-0000-4000-d000-000000000005', '00000000-0000-4000-b000-000000000001',
+   '00000000-0000-4000-c000-000000000001', 'Haubenverriegelung reinigen und fetten',
+   '', 'erledigt', 'normal', null,
+   '00000000-0000-4000-a000-000000000002', null, '00000000-0000-4000-a000-000000000002',
+   '00000000-0000-4000-a000-000000000002', now() - interval '14 days',
+   now() - interval '20 days', now() - interval '14 days')
+) as t;
+
+insert into public.task_items (task_id, text, erledigt, erledigt_von, erledigt_am, position) values
+  ('00000000-0000-4000-d000-000000000001', 'Spornrad ausbauen', true,
+   '00000000-0000-4000-a000-000000000002', now() - interval '20 hours', 1),
+  ('00000000-0000-4000-d000-000000000001', 'Ersatzteile bestellen (Rad und Achse)', true,
+   '00000000-0000-4000-a000-000000000002', now() - interval '19 hours', 2),
+  ('00000000-0000-4000-d000-000000000001', 'Neues Spornrad einbauen', false, null, null, 3),
+  ('00000000-0000-4000-d000-000000000001', 'Funktionsprüfung am Boden', false, null, null, 4),
+  ('00000000-0000-4000-d000-000000000002', 'Motorhaube abnehmen', true,
+   '00000000-0000-4000-a000-000000000002', now() - interval '40 minutes', 1),
+  ('00000000-0000-4000-d000-000000000002', 'Ölleitungen und Kühleranschlüsse prüfen', false, null, null, 2),
+  ('00000000-0000-4000-d000-000000000002', 'Probelauf und Sichtprüfung auf Dichtheit', false, null, null, 3),
+  ('00000000-0000-4000-d000-000000000003', 'Ersatzinstrument besorgen', false, null, null, 1),
+  ('00000000-0000-4000-d000-000000000003', 'Einbauen und Dichtheitsprüfung', false, null, null, 2);
+
+insert into public.task_events (task_id, user_id, typ, text, created_at) values
+  ('00000000-0000-4000-d000-000000000001', '00000000-0000-4000-a000-000000000002', 'erstellt',
+   'Aufgabe angelegt – zuständig: Willi Wart', now() - interval '1 day'),
+  ('00000000-0000-4000-d000-000000000001', '00000000-0000-4000-a000-000000000002', 'teilschritt',
+   'Erledigt: Spornrad ausbauen', now() - interval '20 hours'),
+  ('00000000-0000-4000-d000-000000000001', '00000000-0000-4000-a000-000000000002', 'status',
+   'Offen → In Arbeit', now() - interval '20 hours'),
+  ('00000000-0000-4000-d000-000000000001', '00000000-0000-4000-a000-000000000002', 'kommentar',
+   'Rad ist ab. Die Achse ist eingelaufen, deshalb gleich mitbestellt. Lager sehen gut aus.', now() - interval '19 hours 30 minutes'),
+  ('00000000-0000-4000-d000-000000000001', '00000000-0000-4000-a000-000000000002', 'teilschritt',
+   'Erledigt: Ersatzteile bestellen (Rad und Achse)', now() - interval '19 hours'),
+  ('00000000-0000-4000-d000-000000000001', '00000000-0000-4000-a000-000000000002', 'status',
+   'In Arbeit → Wartet – wartet auf: Ersatzteil bestellt, Lieferung ca. Freitag', now() - interval '3 hours'),
+  ('00000000-0000-4000-d000-000000000002', '00000000-0000-4000-a000-000000000001', 'erstellt',
+   'Aufgabe angelegt – zuständig: Willi Wart', now() - interval '50 minutes'),
+  ('00000000-0000-4000-d000-000000000002', '00000000-0000-4000-a000-000000000002', 'teilschritt',
+   'Erledigt: Motorhaube abnehmen', now() - interval '40 minutes'),
+  ('00000000-0000-4000-d000-000000000002', '00000000-0000-4000-a000-000000000002', 'status',
+   'Offen → In Arbeit', now() - interval '40 minutes'),
+  ('00000000-0000-4000-d000-000000000002', '00000000-0000-4000-a000-000000000002', 'kommentar',
+   'Halb fertig: Haube ist ab, die Ölleitung zum Kühler ist feucht und verdächtig. Muss heute weg, morgen früh geht es weiter.',
+   now() - interval '20 minutes'),
+  ('00000000-0000-4000-d000-000000000003', '00000000-0000-4000-a000-000000000002', 'erstellt',
+   'Aufgabe angelegt – fällig: 28.02.2027', now() - interval '6 days'),
+  ('00000000-0000-4000-d000-000000000004', '00000000-0000-4000-a000-000000000001', 'erstellt',
+   'Aufgabe angelegt – zuständig: Anna Admin', now() - interval '10 days'),
+  ('00000000-0000-4000-d000-000000000005', '00000000-0000-4000-a000-000000000002', 'erstellt',
+   'Aufgabe angelegt – zuständig: Willi Wart', now() - interval '20 days'),
+  ('00000000-0000-4000-d000-000000000005', '00000000-0000-4000-a000-000000000002', 'status',
+   'Offen → Erledigt – Verriegelung gereinigt und gefettet.', now() - interval '14 days');

@@ -100,7 +100,14 @@ Details stehen in [`CLAUDE.md`](CLAUDE.md) unter „Team-Workflow“.
 
 Die App läuft als Cloudflare Worker mit statischen Assets. Die Konfiguration steht in [`wrangler.jsonc`](wrangler.jsonc): Cloudflare liefert `dist/` aus, unbekannte Pfade bekommen `index.html` (Single-Page-App). `public/_headers` setzt Sicherheits-Header und `noindex`, damit Suchmaschinen die App nicht aufnehmen.
 
-Einstellungen in Cloudflare unter Workers & Pages → `edkn-technik` → Settings → Build:
+| Was        | Adresse                                                     |
+| ---------- | ----------------------------------------------------------- |
+| Production | <https://edkn-technik.edkn.workers.dev> (Branch `main`)     |
+| Preview    | `https://<branch>-edkn-technik.edkn.workers.dev` pro Branch |
+
+Angebunden ist das Supabase-Projekt `edkn-technik` (Region Frankfurt, Gratis-Tarif), noch ohne echte Vereinsdaten. Wem die Konten gehören: [`docs/entscheidungen.md`](docs/entscheidungen.md).
+
+Einstellungen in Cloudflare unter Workers & Pages → `edkn-technik` → Settings → Build (Stand 18.11.2026):
 
 | Feld                               | Wert                                |
 | ---------------------------------- | ----------------------------------- |
@@ -109,9 +116,26 @@ Einstellungen in Cloudflare unter Workers & Pages → `edkn-technik` → Setting
 | Build command                      | `npm run build`                     |
 | Deploy command                     | `npx wrangler deploy`               |
 | Builds for non-production branches | aktiviert (Preview-Link pro Branch) |
-| Umgebungsvariable (Build)          | `NODE_VERSION` = `22`               |
+| Previews → Base: Preview command   | `npx wrangler preview`              |
+| Root directory                     | `/`                                 |
 
-Ab Schritt 3 kommen `VITE_SUPABASE_URL` und `VITE_SUPABASE_PUBLISHABLE_KEY` des Supabase-Dev-Projekts (Region EU/Frankfurt) als **Build-Variablen** dazu (Vite baut sie ins Frontend ein). Niemals den Secret-/Service-Role-Key dort eintragen.
+**Build-Variablen** (Settings → Build → Variables and secrets, nicht die Runtime-Variablen des Workers, denn Vite baut sie beim Build ins Frontend ein), jeweils für Production **und** Previews:
+
+| Name                            | Wert                                                       |
+| ------------------------------- | ---------------------------------------------------------- |
+| `NODE_VERSION`                  | `22`                                                       |
+| `VITE_SUPABASE_URL`             | `https://<PROJECT-ID>.supabase.co`                         |
+| `VITE_SUPABASE_PUBLISHABLE_KEY` | Publishable Key (`sb_publishable_…`) aus Supabase-API-Keys |
+
+Niemals den Secret-/Service-Role-Key dort eintragen.
+
+Worauf man achten muss:
+
+- **Jede Preview-Umgebung hat eine eigene Kopie der Build-Einstellungen** (Preview command, Variablen). Wer etwas für Production ändert, prüft, ob es bei den Previews auch so steht, und umgekehrt. Neue Variablen wirken erst nach einem neuen Build.
+- **`"previews": {}` in `wrangler.jsonc` ist Pflicht.** Ohne den Block bricht `npx wrangler preview` ab, und Preview-Builds schlagen fehl. Leer reicht.
+- Nicht mehr `npx wrangler versions upload` als Befehl für Nicht-main-Branches eintragen. Das führte in der neuen Preview-Umgebung zu einem Namenskonflikt.
+
+Wie das Deployment eingerichtet wurde, mit Supabase-CLI-Befehlen und Stolpersteinen: [`docs/deployment.md`](docs/deployment.md).
 
 ## Vor dem echten Betrieb
 
