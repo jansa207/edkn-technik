@@ -1,11 +1,18 @@
 import {
+  Archive,
+  CalendarClock,
   CircleHelp,
+  ClipboardCheck,
   ClipboardList,
   FileText,
+  Gauge,
   Inbox,
+  LayoutGrid,
   ListTodo,
   Plane,
   PlaneTakeoff,
+  Plug,
+  TriangleAlert,
   UserRound,
   Users,
   type LucideIcon,
@@ -13,7 +20,28 @@ import {
 import type { Rolle } from '@/components/statusTexte'
 
 export type ZaehlerArt =
-  'neueMeldungen' | 'aufgabenUeberfaellig' | 'nutzerAusstehend' | 'meineAufgaben'
+  | 'neueMeldungen'
+  | 'aufgabenUeberfaellig'
+  | 'nutzerAusstehend'
+  | 'meineAufgaben'
+  | 'fristenUeberfaellig'
+
+/**
+ * Warte und Admins sind auch Piloten. Sie sehen standardmäßig den Flugbetrieb
+ * und schalten in die Instandhaltung um. Piloten haben nur den Flugbetrieb.
+ */
+export type Modus = 'flugbetrieb' | 'instandhaltung'
+
+export const MODUS_TEXT: Record<Modus, string> = {
+  flugbetrieb: 'Flugbetrieb',
+  instandhaltung: 'Instandhaltung',
+}
+
+/** Startseite je Modus (beim Umschalten) */
+export const MODUS_START: Record<Modus, string> = {
+  flugbetrieb: '/',
+  instandhaltung: '/werkstatt/meldungen',
+}
 
 export interface NavPunkt {
   to: string
@@ -27,54 +55,91 @@ export interface NavPunkt {
 
 export interface NavGruppe {
   titel: string
+  /** In welchem Modus die Gruppe erscheint (`beide` = immer) */
+  modus: Modus | 'beide'
   punkte: NavPunkt[]
 }
 
-const WERKSTATT: Rolle[] = ['wart', 'admin']
+const INSTANDHALTUNG: Rolle[] = ['wart', 'admin']
+const ADMIN: Rolle[] = ['admin']
 
 export const NAVIGATION: NavGruppe[] = [
   {
-    titel: 'Betrieb',
+    titel: 'Flugbetrieb',
+    modus: 'flugbetrieb',
     punkte: [
       { to: '/', label: 'Flottenstatus', icon: Plane, exakt: true },
-      { to: '/melden', label: 'Mangel melden', icon: PlaneTakeoff },
-      { to: '/meine-meldungen', label: 'Meine Meldungen', icon: FileText },
+      { to: '/beanstandungen', label: 'Offene Punkte', icon: TriangleAlert },
+      { to: '/melden', label: 'Beanstandung melden', icon: PlaneTakeoff },
+      { to: '/meine-meldungen', label: 'Meine Beanstandungen', icon: FileText },
     ],
   },
   {
-    titel: 'Werkstatt',
+    titel: 'Instandhaltung',
+    modus: 'instandhaltung',
     punkte: [
+      { to: '/', label: 'Flottenstatus', icon: Plane, exakt: true, rollen: INSTANDHALTUNG },
       {
         to: '/werkstatt/meldungen',
-        label: 'Meldungseingang',
+        label: 'Beanstandungseingang',
         icon: Inbox,
-        rollen: WERKSTATT,
+        rollen: INSTANDHALTUNG,
         zaehler: 'neueMeldungen',
       },
       {
         to: '/werkstatt/aufgaben',
         label: 'Aufgaben',
         icon: ListTodo,
-        rollen: WERKSTATT,
+        rollen: INSTANDHALTUNG,
         zaehler: 'aufgabenUeberfaellig',
       },
+      {
+        to: '/werkstatt/fristen',
+        label: 'Fristen',
+        icon: CalendarClock,
+        rollen: INSTANDHALTUNG,
+        zaehler: 'fristenUeberfaellig',
+      },
+      {
+        to: '/werkstatt/betriebsstunden',
+        label: 'Betriebsstunden',
+        icon: Gauge,
+        rollen: INSTANDHALTUNG,
+      },
+      { to: '/werkstatt/archiv', label: 'Archiv', icon: Archive, rollen: INSTANDHALTUNG },
     ],
   },
   {
     titel: 'Verwaltung',
+    modus: 'instandhaltung',
     punkte: [
       {
+        to: '/verwaltung',
+        label: 'Übersicht',
+        icon: LayoutGrid,
+        rollen: INSTANDHALTUNG,
+        exakt: true,
+      },
+      { to: '/verwaltung/flugzeuge', label: 'Luftfahrzeuge', icon: ClipboardList, rollen: ADMIN },
+      {
+        to: '/verwaltung/wartungsprogramme',
+        label: 'Wartungsprogramme',
+        icon: ClipboardCheck,
+        rollen: INSTANDHALTUNG,
+      },
+      {
         to: '/verwaltung/nutzer',
-        label: 'Nutzer',
+        label: 'Nutzer und Freigaben',
         icon: Users,
-        rollen: ['admin'],
+        rollen: ADMIN,
         zaehler: 'nutzerAusstehend',
       },
-      { to: '/verwaltung/flugzeuge', label: 'Flugzeuge', icon: ClipboardList, rollen: ['admin'] },
+      { to: '/verwaltung/schnittstellen', label: 'Schnittstellen', icon: Plug, rollen: ADMIN },
     ],
   },
   {
     titel: 'Support',
+    modus: 'beide',
     punkte: [
       { to: '/profil', label: 'Mein Profil', icon: UserRound },
       { to: '/hilfe', label: 'Hilfe', icon: CircleHelp },
@@ -82,11 +147,32 @@ export const NAVIGATION: NavGruppe[] = [
   },
 ]
 
-export function sichtbareNavigation(rolle: Rolle): NavGruppe[] {
-  return NAVIGATION.map((g) => ({
-    ...g,
-    punkte: g.punkte.filter((p) => !p.rollen || p.rollen.includes(rolle)),
-  })).filter((g) => g.punkte.length > 0)
+/** Darf diese Rolle zwischen den Modi umschalten? */
+export function hatInstandhaltung(rolle: Rolle): boolean {
+  return INSTANDHALTUNG.includes(rolle)
+}
+
+export function sichtbareNavigation(rolle: Rolle, modus: Modus = 'flugbetrieb'): NavGruppe[] {
+  const m: Modus = hatInstandhaltung(rolle) ? modus : 'flugbetrieb'
+  return NAVIGATION.filter((g) => g.modus === 'beide' || g.modus === m)
+    .map((g) => ({
+      ...g,
+      punkte: g.punkte.filter((p) => !p.rollen || p.rollen.includes(rolle)),
+    }))
+    .filter((g) => g.punkte.length > 0)
+}
+
+/** Manche Adressen gehören fest zu einem Modus, z. B. ein Link in die Instandhaltung */
+export function modusFuerPfad(pfad: string): Modus | null {
+  if (pfad.startsWith('/werkstatt') || pfad.startsWith('/verwaltung')) return 'instandhaltung'
+  if (
+    pfad.startsWith('/melden') ||
+    pfad.startsWith('/meine-meldungen') ||
+    pfad.startsWith('/beanstandungen')
+  ) {
+    return 'flugbetrieb'
+  }
+  return null
 }
 
 /** Daten aus `handle` einer Route für Titel und Pfadangabe */

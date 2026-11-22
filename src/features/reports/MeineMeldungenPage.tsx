@@ -18,8 +18,8 @@ export function MeineMeldungenPage() {
     <div className="space-y-4 lg:space-y-6">
       <div className={id ? 'hidden lg:block' : ''}>
         <SeitenKopf
-          titel="Meine Meldungen"
-          untertitel="Deine Meldungen mit dem Stand der Werkstatt und Rückmeldungen."
+          titel="Meine Beanstandungen"
+          untertitel="Deine Beanstandungen mit dem Stand der Instandhaltung und Rückmeldungen."
           aktionen={
             <ButtonLink
               to="/melden"
@@ -27,14 +27,14 @@ export function MeineMeldungenPage() {
               icon={<PlaneTakeoff aria-hidden="true" className="size-4" />}
               className="hidden lg:inline-flex"
             >
-              Mangel melden
+              Beanstandung melden
             </ButtonLink>
           }
         />
       </div>
       <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-[minmax(320px,420px)_1fr] lg:gap-6">
         <Panel className={id ? 'hidden lg:block' : ''}>
-          <PanelKopf titel="Meldungen" zusatz={meldungen.data?.length} />
+          <PanelKopf titel="Beanstandungen" zusatz={meldungen.data?.length} />
           {meldungen.isPending ? (
             <Laden />
           ) : meldungen.isError ? (
@@ -42,8 +42,8 @@ export function MeineMeldungenPage() {
               <FehlerBox fehler={meldungen.error} nochmal={() => void meldungen.refetch()} />
             </div>
           ) : meldungen.data.length === 0 ? (
-            <Leer icon={<FileText />} titel="Noch keine Meldungen">
-              Wenn dir an einem Flugzeug etwas auffällt, melde es über „Mangel melden“.
+            <Leer icon={<FileText />} titel="Noch keine Beanstandungen">
+              Wenn dir an einem Luftfahrzeug etwas auffällt, melde es über „Beanstandung melden“.
             </Leer>
           ) : (
             <ul className="divide-rand divide-y">
@@ -80,7 +80,7 @@ export function MeineMeldungenPage() {
 export function MeineMeldungPlatzhalter() {
   return (
     <Panel className="hidden lg:block">
-      <Leer icon={<FileText />} titel="Meldung auswählen" />
+      <Leer icon={<FileText />} titel="Beanstandung auswählen" />
     </Panel>
   )
 }
@@ -101,7 +101,7 @@ export function MeineMeldungDetail() {
   if (!m)
     return (
       <Panel>
-        <Leer titel="Meldung nicht gefunden" />
+        <Leer titel="Beanstandung nicht gefunden" />
       </Panel>
     )
 
@@ -121,7 +121,7 @@ export function MeineMeldungDetail() {
             {m.kategorie != null && <KatBadge kategorie={m.kategorie} />}
           </div>
           <DatenFelder>
-            <DatenFeld label="Flugzeug" mono>
+            <DatenFeld label="Luftfahrzeug" mono>
               <Link to={`/flugzeuge/${m.aircraft_id}`} className="text-primaer hover:underline">
                 {m.kennzeichen}
               </Link>
@@ -140,7 +140,7 @@ export function MeineMeldungDetail() {
           </div>
           {m.vorlaeufig_nicht_flugklar && (
             <Hinweis ton="gefahr">
-              Du hast das Flugzeug als vorläufig nicht flugklar gemeldet.
+              Du hast das Luftfahrzeug als vorläufig nicht flugklar gemeldet.
             </Hinweis>
           )}
           <FotoGalerie reportId={m.id} anzahl={m.anzahl_fotos} />

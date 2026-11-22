@@ -171,7 +171,7 @@ export function AufgabenPage() {
       <div className={id ? 'hidden lg:block' : ''}>
         <SeitenKopf
           titel="Aufgaben"
-          untertitel="Interne To-dos der Werkstatt mit Frist, Zuständigkeit und Arbeitsstand."
+          untertitel="Interne To-dos der Instandhaltung mit Frist, Zuständigkeit und Arbeitsstand."
           aktionen={
             <Button
               art="primaer"
@@ -238,13 +238,13 @@ export function AufgabenPage() {
               />
             </div>
             <select
-              aria-label="Flugzeug"
+              aria-label="Luftfahrzeug"
               value={flugzeug}
               onChange={(e) => setze('flugzeug', e.target.value)}
               className="border-rand-stark min-h-11 w-full rounded-md border bg-white px-3 text-base lg:min-h-9 lg:text-sm"
             >
-              <option value="">Alle Flugzeuge</option>
-              <option value="allgemein">Allgemein (ohne Flugzeug)</option>
+              <option value="">Alle Luftfahrzeuge</option>
+              <option value="allgemein">Allgemein (ohne Luftfahrzeug)</option>
               {flugzeuge.map(([fid, kz]) => (
                 <option key={fid} value={fid}>
                   {kz}

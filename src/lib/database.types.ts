@@ -81,6 +81,295 @@ export type Database = {
           },
         ]
       }
+      aircraft_counters: {
+        Row: {
+          aircraft_id: string
+          betriebsminuten: number
+          created_at: string
+          erfasst_von: string | null
+          id: number
+          landungen: number | null
+          notiz: string | null
+          quelle: Database['public']['Enums']['zaehler_quelle']
+          stand_am: string
+        }
+        ComputedFields: never
+        Insert: {
+          aircraft_id: string
+          betriebsminuten: number
+          created_at?: string
+          erfasst_von?: string | null
+          id?: never
+          landungen?: number | null
+          notiz?: string | null
+          quelle?: Database['public']['Enums']['zaehler_quelle']
+          stand_am: string
+        }
+        Update: {
+          aircraft_id?: string
+          betriebsminuten?: number
+          created_at?: string
+          erfasst_von?: string | null
+          id?: never
+          landungen?: number | null
+          notiz?: string | null
+          quelle?: Database['public']['Enums']['zaehler_quelle']
+          stand_am?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'aircraft_counters_aircraft_id_fkey'
+            columns: ['aircraft_id']
+            isOneToOne: false
+            referencedRelation: 'aircraft'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'aircraft_counters_aircraft_id_fkey'
+            columns: ['aircraft_id']
+            isOneToOne: false
+            referencedRelation: 'aircraft_overview'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'aircraft_counters_erfasst_von_fkey'
+            columns: ['erfasst_von']
+            isOneToOne: false
+            referencedRelation: 'profile_names'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'aircraft_counters_erfasst_von_fkey'
+            columns: ['erfasst_von']
+            isOneToOne: false
+            referencedRelation: 'profiles'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      deadline_events: {
+        Row: {
+          created_at: string
+          deadline_id: string
+          id: number
+          text: string | null
+          typ: Database['public']['Enums']['frist_event_typ']
+          user_id: string | null
+        }
+        ComputedFields: never
+        Insert: {
+          created_at?: string
+          deadline_id: string
+          id?: never
+          text?: string | null
+          typ: Database['public']['Enums']['frist_event_typ']
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          deadline_id?: string
+          id?: never
+          text?: string | null
+          typ?: Database['public']['Enums']['frist_event_typ']
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'deadline_events_deadline_id_fkey'
+            columns: ['deadline_id']
+            isOneToOne: false
+            referencedRelation: 'deadline_list'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'deadline_events_deadline_id_fkey'
+            columns: ['deadline_id']
+            isOneToOne: false
+            referencedRelation: 'deadlines'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'deadline_events_user_id_fkey'
+            columns: ['user_id']
+            isOneToOne: false
+            referencedRelation: 'profile_names'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'deadline_events_user_id_fkey'
+            columns: ['user_id']
+            isOneToOne: false
+            referencedRelation: 'profiles'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      deadlines: {
+        Row: {
+          aircraft_id: string
+          aktiv: boolean
+          beschreibung: string
+          created_at: string
+          erstellt_von: string | null
+          faellig_am: string | null
+          faellig_bei_minuten: number | null
+          id: string
+          intervall_minuten: number | null
+          intervall_monate: number | null
+          titel: string
+          updated_at: string
+          vorlauf_minuten: number
+          vorlauf_tage: number
+          zuletzt_am: string | null
+          zuletzt_bei_minuten: number | null
+        }
+        ComputedFields: never
+        Insert: {
+          aircraft_id: string
+          aktiv?: boolean
+          beschreibung?: string
+          created_at?: string
+          erstellt_von?: string | null
+          faellig_am?: string | null
+          faellig_bei_minuten?: number | null
+          id?: string
+          intervall_minuten?: number | null
+          intervall_monate?: number | null
+          titel: string
+          updated_at?: string
+          vorlauf_minuten?: number
+          vorlauf_tage?: number
+          zuletzt_am?: string | null
+          zuletzt_bei_minuten?: number | null
+        }
+        Update: {
+          aircraft_id?: string
+          aktiv?: boolean
+          beschreibung?: string
+          created_at?: string
+          erstellt_von?: string | null
+          faellig_am?: string | null
+          faellig_bei_minuten?: number | null
+          id?: string
+          intervall_minuten?: number | null
+          intervall_monate?: number | null
+          titel?: string
+          updated_at?: string
+          vorlauf_minuten?: number
+          vorlauf_tage?: number
+          zuletzt_am?: string | null
+          zuletzt_bei_minuten?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'deadlines_aircraft_id_fkey'
+            columns: ['aircraft_id']
+            isOneToOne: false
+            referencedRelation: 'aircraft'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'deadlines_aircraft_id_fkey'
+            columns: ['aircraft_id']
+            isOneToOne: false
+            referencedRelation: 'aircraft_overview'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'deadlines_erstellt_von_fkey'
+            columns: ['erstellt_von']
+            isOneToOne: false
+            referencedRelation: 'profile_names'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'deadlines_erstellt_von_fkey'
+            columns: ['erstellt_von']
+            isOneToOne: false
+            referencedRelation: 'profiles'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      maintenance_template_items: {
+        Row: {
+          id: string
+          position: number
+          template_id: string
+          text: string
+        }
+        ComputedFields: never
+        Insert: {
+          id?: string
+          position?: number
+          template_id: string
+          text: string
+        }
+        Update: {
+          id?: string
+          position?: number
+          template_id?: string
+          text?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'maintenance_template_items_template_id_fkey'
+            columns: ['template_id']
+            isOneToOne: false
+            referencedRelation: 'maintenance_templates'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      maintenance_templates: {
+        Row: {
+          aktiv: boolean
+          beschreibung: string
+          created_at: string
+          erstellt_von: string | null
+          id: string
+          muster: string | null
+          titel: string
+          updated_at: string
+        }
+        ComputedFields: never
+        Insert: {
+          aktiv?: boolean
+          beschreibung?: string
+          created_at?: string
+          erstellt_von?: string | null
+          id?: string
+          muster?: string | null
+          titel: string
+          updated_at?: string
+        }
+        Update: {
+          aktiv?: boolean
+          beschreibung?: string
+          created_at?: string
+          erstellt_von?: string | null
+          id?: string
+          muster?: string | null
+          titel?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'maintenance_templates_erstellt_von_fkey'
+            columns: ['erstellt_von']
+            isOneToOne: false
+            referencedRelation: 'profile_names'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'maintenance_templates_erstellt_von_fkey'
+            columns: ['erstellt_von']
+            isOneToOne: false
+            referencedRelation: 'profiles'
+            referencedColumns: ['id']
+          },
+        ]
+      }
       profiles: {
         Row: {
           created_at: string
@@ -253,12 +542,14 @@ export type Database = {
       reports: {
         Row: {
           aircraft_id: string
+          beobachten: boolean
           created_at: string
           eingestuft_am: string | null
           eingestuft_von: string | null
           erledigt_am: string | null
           id: string
           kategorie: number | null
+          massnahme: string | null
           melder_id: string
           nr: number
           pilotenhinweis: string | null
@@ -271,12 +562,14 @@ export type Database = {
         ComputedFields: never
         Insert: {
           aircraft_id: string
+          beobachten?: boolean
           created_at?: string
           eingestuft_am?: string | null
           eingestuft_von?: string | null
           erledigt_am?: string | null
           id?: string
           kategorie?: number | null
+          massnahme?: string | null
           melder_id: string
           nr?: never
           pilotenhinweis?: string | null
@@ -288,12 +581,14 @@ export type Database = {
         }
         Update: {
           aircraft_id?: string
+          beobachten?: boolean
           created_at?: string
           eingestuft_am?: string | null
           eingestuft_von?: string | null
           erledigt_am?: string | null
           id?: string
           kategorie?: number | null
+          massnahme?: string | null
           melder_id?: string
           nr?: never
           pilotenhinweis?: string | null
@@ -482,6 +777,7 @@ export type Database = {
           prioritaet: Database['public']['Enums']['aufgabe_prioritaet']
           report_id: string | null
           status: Database['public']['Enums']['aufgabe_status']
+          template_id: string | null
           titel: string
           updated_at: string
           wartet_auf: string | null
@@ -501,6 +797,7 @@ export type Database = {
           prioritaet?: Database['public']['Enums']['aufgabe_prioritaet']
           report_id?: string | null
           status?: Database['public']['Enums']['aufgabe_status']
+          template_id?: string | null
           titel: string
           updated_at?: string
           wartet_auf?: string | null
@@ -519,6 +816,7 @@ export type Database = {
           prioritaet?: Database['public']['Enums']['aufgabe_prioritaet']
           report_id?: string | null
           status?: Database['public']['Enums']['aufgabe_status']
+          template_id?: string | null
           titel?: string
           updated_at?: string
           wartet_auf?: string | null
@@ -582,6 +880,13 @@ export type Database = {
             referencedColumns: ['id']
           },
           {
+            foreignKeyName: 'tasks_template_id_fkey'
+            columns: ['template_id']
+            isOneToOne: false
+            referencedRelation: 'maintenance_templates'
+            referencedColumns: ['id']
+          },
+          {
             foreignKeyName: 'tasks_zustaendig_id_fkey'
             columns: ['zustaendig_id']
             isOneToOne: false
@@ -605,6 +910,7 @@ export type Database = {
           ampel: Database['public']['Enums']['ampel'] | null
           anzahl_in_pruefung: number | null
           art: Database['public']['Enums']['flugzeug_art']
+          beobachtungen: Json | null
           gesperrt: boolean
           gesperrt_am: string | null
           gesperrt_von_name: string | null
@@ -679,6 +985,120 @@ export type Database = {
           },
         ]
       }
+      aircraft_zaehler: {
+        Row: {
+          aircraft_id: string
+          betriebsminuten: number
+          created_at: string
+          kennzeichen: string
+          landungen: number | null
+          muster: string
+          quelle: Database['public']['Enums']['zaehler_quelle']
+          stand_am: string
+        }
+        ComputedFields: never
+        Relationships: [
+          {
+            foreignKeyName: 'aircraft_counters_aircraft_id_fkey'
+            columns: ['aircraft_id']
+            isOneToOne: false
+            referencedRelation: 'aircraft'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'aircraft_counters_aircraft_id_fkey'
+            columns: ['aircraft_id']
+            isOneToOne: false
+            referencedRelation: 'aircraft_overview'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      deadline_list: {
+        Row: {
+          aircraft_id: string
+          aktiv: boolean
+          aktuelle_minuten: number | null
+          beschreibung: string
+          created_at: string
+          faellig_am: string | null
+          faellig_bei_minuten: number | null
+          id: string
+          intervall_minuten: number | null
+          intervall_monate: number | null
+          kennzeichen: string
+          muster: string
+          rest_minuten: number | null
+          rest_tage: number | null
+          stand: string | null
+          titel: string
+          updated_at: string
+          vorlauf_minuten: number
+          vorlauf_tage: number
+          zaehler_stand_am: string | null
+          zuletzt_am: string | null
+          zuletzt_bei_minuten: number | null
+        }
+        ComputedFields: never
+        Relationships: [
+          {
+            foreignKeyName: 'deadlines_aircraft_id_fkey'
+            columns: ['aircraft_id']
+            isOneToOne: false
+            referencedRelation: 'aircraft'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'deadlines_aircraft_id_fkey'
+            columns: ['aircraft_id']
+            isOneToOne: false
+            referencedRelation: 'aircraft_overview'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      deadline_verlauf: {
+        Row: {
+          created_at: string
+          deadline_id: string
+          id: number
+          text: string | null
+          typ: Database['public']['Enums']['frist_event_typ']
+          user_id: string | null
+          user_name: string | null
+        }
+        ComputedFields: never
+        Relationships: [
+          {
+            foreignKeyName: 'deadline_events_deadline_id_fkey'
+            columns: ['deadline_id']
+            isOneToOne: false
+            referencedRelation: 'deadline_list'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'deadline_events_deadline_id_fkey'
+            columns: ['deadline_id']
+            isOneToOne: false
+            referencedRelation: 'deadlines'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'deadline_events_user_id_fkey'
+            columns: ['user_id']
+            isOneToOne: false
+            referencedRelation: 'profile_names'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'deadline_events_user_id_fkey'
+            columns: ['user_id']
+            isOneToOne: false
+            referencedRelation: 'profiles'
+            referencedColumns: ['id']
+          },
+        ]
+      }
       profile_names: {
         Row: {
           id: string
@@ -706,6 +1126,7 @@ export type Database = {
           aircraft_id: string
           anzahl_aufgaben_offen: number | null
           anzahl_fotos: number | null
+          beobachten: boolean
           created_at: string
           eingestuft_am: string | null
           eingestuft_von: string | null
@@ -715,6 +1136,7 @@ export type Database = {
           kategorie: number | null
           kennzeichen: string
           letzte_aktivitaet: string | null
+          massnahme: string | null
           melder_id: string
           melder_name: string | null
           muster: string
@@ -793,6 +1215,7 @@ export type Database = {
           report_id: string | null
           report_nr: number | null
           status: Database['public']['Enums']['aufgabe_status']
+          template_id: string | null
           titel: string
           ueberfaellig: boolean | null
           updated_at: string
@@ -842,6 +1265,13 @@ export type Database = {
             columns: ['report_id']
             isOneToOne: false
             referencedRelation: 'reports'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'tasks_template_id_fkey'
+            columns: ['template_id']
+            isOneToOne: false
+            referencedRelation: 'maintenance_templates'
             referencedColumns: ['id']
           },
           {
@@ -912,6 +1342,16 @@ export type Database = {
         }
         Returns: undefined
       }
+      aircraft_counter_add: {
+        Args: {
+          p_aircraft_id: string
+          p_betriebsminuten: number
+          p_landungen?: number
+          p_notiz?: string
+          p_stand_am: string
+        }
+        Returns: undefined
+      }
       aircraft_entsperren: { Args: { p_aircraft_id: string; p_grund: string }; Returns: undefined }
       aircraft_sperren: { Args: { p_aircraft_id: string; p_grund: string }; Returns: undefined }
       aufgabe_status_text: {
@@ -921,6 +1361,26 @@ export type Database = {
       current_rolle: {
         Args: Record<PropertyKey, never>
         Returns: Database['public']['Enums']['rolle']
+      }
+      deadline_abschliessen: { Args: { p_id: string; p_text: string }; Returns: undefined }
+      deadline_erledigen: {
+        Args: { p_am: string; p_bei_minuten?: number; p_id: string; p_text?: string }
+        Returns: undefined
+      }
+      deadline_save: {
+        Args: {
+          p_aircraft_id: string
+          p_beschreibung?: string
+          p_faellig_am?: string
+          p_faellig_bei_minuten?: number
+          p_id?: string
+          p_intervall_minuten?: number
+          p_intervall_monate?: number
+          p_titel: string
+          p_vorlauf_minuten?: number
+          p_vorlauf_tage?: number
+        }
+        Returns: string
       }
       heute: { Args: Record<PropertyKey, never>; Returns: string }
       is_admin: { Args: Record<PropertyKey, never>; Returns: boolean }
@@ -955,6 +1415,10 @@ export type Database = {
       }
       profil_name: { Args: { p_id: string }; Returns: string }
       pruefe_zustaendig: { Args: { p_id: string }; Returns: undefined }
+      report_beobachtung_beenden: {
+        Args: { p_report_id: string; p_text: string }
+        Returns: undefined
+      }
       report_comment: {
         Args: { p_intern?: boolean; p_report_id: string; p_text: string }
         Returns: undefined
@@ -966,6 +1430,7 @@ export type Database = {
       report_einstufen: {
         Args: {
           p_begruendung?: string
+          p_beobachten?: boolean
           p_kategorie: number
           p_pilotenhinweis?: string
           p_pilotenhinweis_sichtbar?: boolean
@@ -984,6 +1449,7 @@ export type Database = {
         }
         Returns: undefined
       }
+      stunden_text: { Args: { p_minuten: number }; Returns: string }
       task_comment: { Args: { p_task_id: string; p_text: string }; Returns: undefined }
       task_create: {
         Args: {
@@ -1021,6 +1487,27 @@ export type Database = {
         }
         Returns: undefined
       }
+      template_save: {
+        Args: {
+          p_beschreibung?: string
+          p_id?: string
+          p_muster?: string
+          p_teilschritte?: string[]
+          p_titel: string
+        }
+        Returns: string
+      }
+      template_set_aktiv: { Args: { p_aktiv: boolean; p_id: string }; Returns: undefined }
+      wartung_starten: {
+        Args: {
+          p_aircraft_id: string
+          p_faellig_am?: string
+          p_sperren?: boolean
+          p_template_id: string
+          p_zustaendig_id?: string
+        }
+        Returns: string
+      }
     }
     Enums: {
       ampel: 'gruen' | 'gelb' | 'rot'
@@ -1028,10 +1515,12 @@ export type Database = {
       aufgabe_prioritaet: 'niedrig' | 'normal' | 'hoch'
       aufgabe_status: 'offen' | 'in_arbeit' | 'wartet' | 'erledigt' | 'verworfen'
       event_typ: 'erstellt' | 'kommentar' | 'statuswechsel' | 'kategorie' | 'sperre' | 'entsperrt'
-      flugzeug_art: 'segler' | 'motorsegler' | 'ul' | 'schlepp'
+      flugzeug_art: 'segler' | 'motorsegler' | 'ul' | 'schlepp' | 'motorflugzeug'
       freigabe: 'ausstehend' | 'freigegeben' | 'abgelehnt' | 'deaktiviert'
+      frist_event_typ: 'erstellt' | 'geaendert' | 'erledigt' | 'abgeschlossen'
       meldung_status: 'neu' | 'zurueckgestellt' | 'in_arbeit' | 'erledigt' | 'abgelegt'
       rolle: 'pilot' | 'wart' | 'admin'
+      zaehler_quelle: 'manuell' | 'vereinsflieger'
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1151,10 +1640,12 @@ export const Constants = {
       aufgabe_prioritaet: ['niedrig', 'normal', 'hoch'],
       aufgabe_status: ['offen', 'in_arbeit', 'wartet', 'erledigt', 'verworfen'],
       event_typ: ['erstellt', 'kommentar', 'statuswechsel', 'kategorie', 'sperre', 'entsperrt'],
-      flugzeug_art: ['segler', 'motorsegler', 'ul', 'schlepp'],
+      flugzeug_art: ['segler', 'motorsegler', 'ul', 'schlepp', 'motorflugzeug'],
       freigabe: ['ausstehend', 'freigegeben', 'abgelehnt', 'deaktiviert'],
+      frist_event_typ: ['erstellt', 'geaendert', 'erledigt', 'abgeschlossen'],
       meldung_status: ['neu', 'zurueckgestellt', 'in_arbeit', 'erledigt', 'abgelegt'],
       rolle: ['pilot', 'wart', 'admin'],
+      zaehler_quelle: ['manuell', 'vereinsflieger'],
     },
   },
 } as const

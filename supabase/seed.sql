@@ -229,3 +229,87 @@ insert into public.task_events (task_id, user_id, typ, text, created_at) values
    'Aufgabe angelegt – zuständig: Willi Wart', now() - interval '20 days'),
   ('00000000-0000-4000-d000-000000000005', '00000000-0000-4000-a000-000000000002', 'status',
    'Offen → Erledigt – Verriegelung gereinigt und gefettet.', now() - interval '14 days');
+
+-- -----------------------------------------------------------------------------
+-- Instandhaltung v0.3: Archiv-Maßnahme, Beobachtung, Motorflugzeug,
+-- Betriebsstunden, Fristen, Wartungsprogramme (alles Fantasiedaten)
+-- -----------------------------------------------------------------------------
+update public.reports set massnahme = 'Verriegelung gereinigt und gefettet. Danke für die Meldung!'
+  where id = '00000000-0000-4000-c000-000000000001';
+
+insert into public.aircraft (id, kennzeichen, wettbewerbskennzeichen, muster, art) values
+  ('00000000-0000-4000-b000-000000000006', 'D-EDEM', null, 'Robin DR400', 'motorflugzeug');
+
+-- D-9001 bleibt grün, hat aber einen Punkt unter Beobachtung
+insert into public.reports (
+  id, aircraft_id, melder_id, text, kategorie, status, ziel, pilotenhinweis, pilotenhinweis_sichtbar,
+  beobachten, massnahme, eingestuft_von, eingestuft_am, created_at
+) values (
+  '00000000-0000-4000-c000-000000000006', '00000000-0000-4000-b000-000000000001',
+  '00000000-0000-4000-a000-000000000004', 'Trimmung lässt sich in Endstellung schwer bewegen.',
+  3, 'abgelegt', null,
+  'Trimmung in Endstellung etwas schwergängig – bekannt, unbedenklich. Bitte melden, wenn es schlimmer wird.',
+  true, true, 'Trimmung geprüft, Seilzug in Ordnung. Wir beobachten das.',
+  '00000000-0000-4000-a000-000000000002', now() - interval '4 days', now() - interval '5 days'
+);
+insert into public.report_events (report_id, aircraft_id, user_id, typ, text, intern, created_at) values
+  ('00000000-0000-4000-c000-000000000006', '00000000-0000-4000-b000-000000000001', '00000000-0000-4000-a000-000000000004',
+   'erstellt', 'Beanstandung erfasst', false, now() - interval '5 days'),
+  ('00000000-0000-4000-c000-000000000006', '00000000-0000-4000-b000-000000000001', '00000000-0000-4000-a000-000000000002',
+   'kategorie', 'Eingestuft als Kat 3 – unter Beobachtung: Trimmung in Endstellung etwas schwergängig – bekannt, unbedenklich. Bitte melden, wenn es schlimmer wird.',
+   false, now() - interval '4 days'),
+  ('00000000-0000-4000-c000-000000000006', '00000000-0000-4000-b000-000000000001', '00000000-0000-4000-a000-000000000002',
+   'kommentar', 'Trimmung geprüft, Seilzug in Ordnung. Wir beobachten das.', false, now() - interval '4 days');
+
+insert into public.aircraft_counters (aircraft_id, stand_am, betriebsminuten, landungen, erfasst_von, created_at) values
+  ('00000000-0000-4000-b000-000000000004', (now() at time zone 'Europe/Berlin')::date - 30, 112380, 4120,
+   '00000000-0000-4000-a000-000000000002', now() - interval '30 days'),
+  ('00000000-0000-4000-b000-000000000004', (now() at time zone 'Europe/Berlin')::date - 2, 112940, 4151,
+   '00000000-0000-4000-a000-000000000002', now() - interval '2 days'),
+  ('00000000-0000-4000-b000-000000000005', (now() at time zone 'Europe/Berlin')::date - 6, 57420, 3010,
+   '00000000-0000-4000-a000-000000000002', now() - interval '6 days'),
+  ('00000000-0000-4000-b000-000000000006', (now() at time zone 'Europe/Berlin')::date - 1, 241830, 9877,
+   '00000000-0000-4000-a000-000000000002', now() - interval '1 day');
+
+insert into public.deadlines (
+  aircraft_id, titel, beschreibung, faellig_am, faellig_bei_minuten, intervall_monate, intervall_minuten,
+  zuletzt_am, zuletzt_bei_minuten, erstellt_von
+) values
+  ('00000000-0000-4000-b000-000000000001', 'Anschnallgurte tauschen', 'Lebensdauer laut Hersteller.',
+   (now() at time zone 'Europe/Berlin')::date + 20, null, null, null, null, null, '00000000-0000-4000-a000-000000000002'),
+  ('00000000-0000-4000-b000-000000000002', 'Jahresnachprüfung', '',
+   (now() at time zone 'Europe/Berlin')::date + 140, null, 12, null,
+   (now() at time zone 'Europe/Berlin')::date - 225, null, '00000000-0000-4000-a000-000000000002'),
+  ('00000000-0000-4000-b000-000000000004', 'ELT-Batterie tauschen', '',
+   (now() at time zone 'Europe/Berlin')::date - 4, null, 72, null, null, null, '00000000-0000-4000-a000-000000000002'),
+  ('00000000-0000-4000-b000-000000000005', '100-h-Kontrolle', 'Nach Wartungshandbuch.',
+   null, 60000, null, 6000, null, 54000, '00000000-0000-4000-a000-000000000002'),
+  ('00000000-0000-4000-b000-000000000006', '50-h-Kontrolle', '',
+   null, 242100, null, 3000, null, 239100, '00000000-0000-4000-a000-000000000002');
+
+insert into public.deadline_events (deadline_id, user_id, typ, text, created_at)
+select d.id, '00000000-0000-4000-a000-000000000002', 'erstellt', 'Frist angelegt', now() - interval '30 days'
+from public.deadlines d;
+
+insert into public.maintenance_templates (id, titel, beschreibung, muster, erstellt_von) values
+  ('00000000-0000-4000-e000-000000000001', 'Winterwartung Doppelsitzer',
+   'Jährliche Winterarbeit. Ergebnisse ins Bordbuch eintragen.', 'ASK 21', '00000000-0000-4000-a000-000000000002'),
+  ('00000000-0000-4000-e000-000000000002', '50-h-Kontrolle UL',
+   'Nach Wartungshandbuch des Herstellers.', 'C42', '00000000-0000-4000-a000-000000000002'),
+  ('00000000-0000-4000-e000-000000000003', '100-h-Kontrolle Motorflugzeug',
+   'Nach Wartungshandbuch des Herstellers.', 'Robin DR400', '00000000-0000-4000-a000-000000000002');
+
+insert into public.maintenance_template_items (template_id, text, position) values
+  ('00000000-0000-4000-e000-000000000001', 'Ruder und Anlenkungen prüfen', 1),
+  ('00000000-0000-4000-e000-000000000001', 'Haube und Verriegelung prüfen', 2),
+  ('00000000-0000-4000-e000-000000000001', 'Rad, Bremse und Sporn prüfen', 3),
+  ('00000000-0000-4000-e000-000000000001', 'Instrumente und Leitungen prüfen', 4),
+  ('00000000-0000-4000-e000-000000000001', 'Oberfläche reinigen und polieren', 5),
+  ('00000000-0000-4000-e000-000000000002', 'Ölwechsel und Filter', 1),
+  ('00000000-0000-4000-e000-000000000002', 'Zündkerzen prüfen', 2),
+  ('00000000-0000-4000-e000-000000000002', 'Luftfilter prüfen', 3),
+  ('00000000-0000-4000-e000-000000000002', 'Reifendruck und Bremsen prüfen', 4),
+  ('00000000-0000-4000-e000-000000000003', 'Motor: Öl, Filter, Zündung', 1),
+  ('00000000-0000-4000-e000-000000000003', 'Zelle und Fahrwerk prüfen', 2),
+  ('00000000-0000-4000-e000-000000000003', 'Steuerung und Anlenkungen prüfen', 3),
+  ('00000000-0000-4000-e000-000000000003', 'Avionik und Beleuchtung prüfen', 4);

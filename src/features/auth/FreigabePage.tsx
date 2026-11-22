@@ -23,7 +23,7 @@ export function FreigabePage() {
         <Hinweis titel={`Hallo ${profil.vorname}!`}>
           <p>
             Ein Admin des Vereins prüft dein Konto und schaltet es frei. Danach siehst du hier den
-            Zustand der Flugzeuge und kannst Mängel melden.
+            Zustand der Luftfahrzeuge und kannst Beanstandungen melden.
           </p>
         </Hinweis>
         <div className="text-text-2 flex items-center gap-3 text-sm">

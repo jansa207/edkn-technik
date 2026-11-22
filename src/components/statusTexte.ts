@@ -47,10 +47,11 @@ export const ART_TEXT: Record<FlugzeugArt, string> = {
   motorsegler: 'Motorsegler',
   ul: 'Ultraleicht',
   schlepp: 'Schleppflugzeug',
+  motorflugzeug: 'Motorflugzeug',
 }
 
 export const KAT_TEXT: Record<1 | 2 | 3, string> = {
-  1: 'Sofort reparieren – nicht flugklar',
-  2: 'Später erledigen – fliegbar',
-  3: 'Keine Maßnahme – ablegen',
+  1: 'Nicht lufttüchtig – sofort beheben',
+  2: 'Zurückgestellt – fliegbar',
+  3: 'Kein Handlungsbedarf',
 }

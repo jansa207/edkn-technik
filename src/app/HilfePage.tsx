@@ -26,20 +26,20 @@ export function HilfePage() {
           </ul>
         </Panel>
         <Panel>
-          <PanelKopf titel="Mangel melden" />
+          <PanelKopf titel="Beanstandung melden" />
           <ol className="list-decimal space-y-2 py-3 pr-4 pl-9 text-sm">
-            <li>„Mangel melden“ antippen und das Flugzeug wählen.</li>
+            <li>„Beanstandung melden“ antippen und das Luftfahrzeug wählen.</li>
             <li>Kurz beschreiben: Wo? Was passiert? Seit wann?</li>
             <li>Bis zu 3 Fotos aufnehmen (optional).</li>
             <li>
-              Wenn du das Flugzeug für nicht flugklar hältst: Schalter „nicht flugklar“ setzen. Es
-              wird sofort für alle rot.
+              Wenn du das Luftfahrzeug für nicht flugklar hältst: Schalter „nicht flugklar“ setzen.
+              Es wird sofort für alle rot.
             </li>
-            <li>Die Rückmeldung der Werkstatt findest du unter „Meine Meldungen“.</li>
+            <li>Die Rückmeldung der Instandhaltung findest du unter „Meine Beanstandungen“.</li>
           </ol>
         </Panel>
         <Panel>
-          <PanelKopf titel="Was passiert mit meiner Meldung?" />
+          <PanelKopf titel="Was passiert mit meiner Beanstandung?" />
           <ul className="divide-rand divide-y">
             {([1, 2, 3] as const).map((k) => (
               <li key={k} className="flex gap-3 px-4 py-3 text-sm">
@@ -49,8 +49,10 @@ export function HilfePage() {
             ))}
           </ul>
           <p className="text-text-2 px-4 pb-3 text-sm">
-            Ein Wart stuft jede Meldung ein. Fremde Meldungen sehen Piloten nicht, nur den Hinweis
-            „in Prüfung“ und freigegebene Pilotenhinweise.
+            Ein Wart stuft jede Beanstandung ein. Fremde Beanstandungen sehen Piloten nicht, nur den
+            Hinweis „in Prüfung“ und freigegebene Pilotenhinweise. Kat-3-Punkte kann ein Wart „unter
+            Beobachtung“ stellen: Dann siehst du einen Hinweis, die Ampel bleibt unverändert. Alles
+            auf einen Blick unter „Offene Punkte“.
           </p>
         </Panel>
         {wart && (
@@ -58,8 +60,8 @@ export function HilfePage() {
             <PanelKopf titel="Für Warte: Aufgaben" />
             <ul className="list-disc space-y-2 py-3 pr-4 pl-9 text-sm">
               <li>
-                Aufgaben sind interne To-dos der Werkstatt mit Frist, Zuständigem und Teilschritten.
-                Sie ändern die Ampel nicht.
+                Aufgaben sind interne To-dos der Instandhaltung mit Frist, Zuständigem und
+                Teilschritten. Sie ändern die Ampel nicht.
               </li>
               <li>
                 Halb fertig? Unter „Arbeitsstand festhalten“ notieren, was gemacht ist und was fehlt
@@ -67,8 +69,32 @@ export function HilfePage() {
               </li>
               <li>Wartet die Arbeit auf Teile oder Hilfe: Status „Wartet“ mit Grund setzen.</li>
               <li>
-                „Erledigt“ geht erst, wenn alle Teilschritte abgehakt sind. Die zugehörige Meldung
-                schließt du im Meldungseingang mit der Maßnahme ab.
+                „Erledigt“ geht erst, wenn alle Teilschritte abgehakt sind. Die zugehörige
+                Beanstandung schließt du im Beanstandungseingang mit der Maßnahme ab.
+              </li>
+            </ul>
+          </Panel>
+        )}
+        {wart && (
+          <Panel>
+            <PanelKopf titel="Für Warte: Instandhaltung" />
+            <ul className="list-disc space-y-2 py-3 pr-4 pl-9 text-sm">
+              <li>
+                Oben im Menü schaltest du zwischen „Flugbetrieb“ (Ansicht wie für Piloten) und
+                „Instandhaltung“ um.
+              </li>
+              <li>
+                „Wartung beginnen“ am Luftfahrzeug startet ein Wartungsprogramm als Aufgabe mit
+                allen Teilschritten und kann das Luftfahrzeug sperren. Die Sperre hebst du danach
+                bewusst auf.
+              </li>
+              <li>
+                Fristen nach Datum oder Betriebsstunden zeigen, was bald fällig ist. Sie ändern die
+                Ampel nicht und ersetzen weder Bordbuch noch Wartungsunterlagen.
+              </li>
+              <li>
+                Im Archiv findest du abgeschlossene Beanstandungen mit Maßnahme – praktisch, wenn
+                ein Symptom wieder auftritt.
               </li>
             </ul>
           </Panel>

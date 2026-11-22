@@ -40,6 +40,6 @@ export function useFlugzeugSpeichern() {
       if (id) pruefe(await supabase.from('aircraft').update(daten).eq('id', id))
       else pruefe(await supabase.from('aircraft').insert(daten))
     },
-    (_, v) => (v.id ? 'Flugzeug gespeichert' : 'Flugzeug angelegt'),
+    (_, v) => (v.id ? 'Luftfahrzeug gespeichert' : 'Luftfahrzeug angelegt'),
   )
 }

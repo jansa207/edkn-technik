@@ -161,7 +161,7 @@ export function NutzerPage() {
                   freigabe: 'deaktiviert',
                   rolle: n.rolle,
                   titel: `${nm} deaktivieren?`,
-                  text: 'Das Konto verliert sofort den Zugriff. Meldungen und Verlauf bleiben erhalten.',
+                  text: 'Das Konto verliert sofort den Zugriff. Beanstandungen und Verlauf bleiben erhalten.',
                   knopf: 'Deaktiviert',
                   gefahr: true,
                 })

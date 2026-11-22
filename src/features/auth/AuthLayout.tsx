@@ -41,9 +41,9 @@ export function AuthLayout({
             Technischer Zustand der Vereinsflugzeuge
           </p>
           <ul className="text-nav-text space-y-2 text-sm">
-            <li>Flugzeugstatus vor dem Flug auf einen Blick</li>
-            <li>Mängel mit Foto in unter einer Minute melden</li>
-            <li>Werkstatt: Meldungen einstufen, Aufgaben planen</li>
+            <li>Status der Luftfahrzeuge vor dem Flug auf einen Blick</li>
+            <li>Beanstandungen mit Foto in unter einer Minute melden</li>
+            <li>Instandhaltung: Beanstandungen einstufen, Aufgaben planen</li>
           </ul>
         </div>
         <p className="text-nav-gedimmt hidden text-xs lg:block">{FOOTER_HINWEIS}</p>

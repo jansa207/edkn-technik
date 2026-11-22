@@ -52,8 +52,8 @@ function FlugzeugDialog({
     <Dialog
       offen
       onSchliessen={onSchliessen}
-      titel={flugzeug ? `${flugzeug.kennzeichen} bearbeiten` : 'Flugzeug anlegen'}
-      untertitel="Stammdaten. Status und Sperren laufen über die Werkstatt."
+      titel={flugzeug ? `${flugzeug.kennzeichen} bearbeiten` : 'Luftfahrzeug anlegen'}
+      untertitel="Stammdaten. Status und Sperren laufen über die Instandhaltung."
       fuss={
         <>
           <Button onClick={onSchliessen}>Abbrechen</Button>
@@ -127,7 +127,7 @@ function FlugzeugDialog({
         </div>
         <Haken
           label="In Dienst"
-          hinweis="Außer Dienst gestellte Flugzeuge erscheinen nicht mehr im Flottenstatus und können nicht gemeldet werden. Verlauf und Meldungen bleiben erhalten."
+          hinweis="Außer Dienst gestellte Luftfahrzeuge erscheinen nicht mehr im Flottenstatus und können nicht gemeldet werden. Verlauf und Beanstandungen bleiben erhalten."
           checked={d.aktiv}
           onChange={(e) => setD({ ...d, aktiv: e.target.checked })}
         />
@@ -145,7 +145,7 @@ export function FlugzeugVerwaltungPage() {
   return (
     <div className="space-y-4 lg:space-y-6">
       <SeitenKopf
-        titel="Flugzeuge"
+        titel="Luftfahrzeuge"
         untertitel="Stammdaten der Vereinsflugzeuge verwalten."
         aktionen={
           <Button
@@ -153,7 +153,7 @@ export function FlugzeugVerwaltungPage() {
             icon={<Plus aria-hidden="true" className="size-4" />}
             onClick={() => setDialog({ flugzeug: null })}
           >
-            Flugzeug anlegen
+            Luftfahrzeug anlegen
           </Button>
         }
       />
@@ -166,7 +166,7 @@ export function FlugzeugVerwaltungPage() {
             <FehlerBox fehler={flotte.error} nochmal={() => void flotte.refetch()} />
           </div>
         ) : liste.length === 0 ? (
-          <Leer icon={<Plane />} titel="Noch keine Flugzeuge" />
+          <Leer icon={<Plane />} titel="Noch keine Luftfahrzeuge" />
         ) : (
           <>
             {/* Desktop: Tabelle */}
