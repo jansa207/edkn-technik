@@ -99,24 +99,25 @@ function Bestaetigung({
       <Panel>
         <div className="flex flex-col items-center gap-3 px-6 py-8 text-center">
           <CircleCheck aria-hidden="true" className="text-ampel-gruen size-12" />
-          <h1 className="text-xl font-semibold">Danke! Meldung ist eingegangen.</h1>
+          <h1 className="text-xl font-semibold">Danke! Beanstandung ist eingegangen.</h1>
           <p className="font-mono text-lg">
             {meldungsNr(ergebnis.nr)} · {kennzeichen}
           </p>
           <p className="text-text-2">
-            Die Werkstatt prüft die Meldung. Die Rückmeldung findest du unter „Meine Meldungen“.
+            Die Instandhaltung prüft die Beanstandung. Die Rückmeldung findest du unter „Meine
+            Beanstandungen“.
           </p>
         </div>
       </Panel>
       {ergebnis.fotoFehler > 0 && (
         <Hinweis ton="warnung" titel="Nicht alle Fotos wurden hochgeladen">
-          {ergebnis.fotoFehler} Foto(s) konnten nicht gespeichert werden. Die Meldung selbst ist
-          gespeichert. Du kannst Fotos per Nachtrag beschreiben oder einem Wart direkt zeigen.
+          {ergebnis.fotoFehler} Foto(s) konnten nicht gespeichert werden. Die Beanstandung selbst
+          ist gespeichert. Du kannst Fotos per Nachtrag beschreiben oder einem Wart direkt zeigen.
         </Hinweis>
       )}
       <div className="grid gap-2 sm:grid-cols-2">
         <ButtonLink to={`/meine-meldungen/${ergebnis.id}`} art="primaer" groesse="gross">
-          Meldung ansehen
+          Beanstandung ansehen
         </ButtonLink>
         <ButtonLink to="/" groesse="gross">
           Zum Flottenstatus
@@ -144,9 +145,9 @@ export function MeldenPage() {
   const aktive = (flotte.data ?? []).filter((f) => f.aktiv)
   const gewaehlt = aktive.find((f) => f.id === aircraftId)
   const fehlt = !aircraftId
-    ? 'Bitte ein Flugzeug wählen.'
+    ? 'Bitte ein Luftfahrzeug wählen.'
     : !text.trim()
-      ? 'Bitte den Mangel beschreiben.'
+      ? 'Bitte die Beanstandung beschreiben.'
       : null
 
   async function absenden(e?: FormEvent) {
@@ -173,13 +174,13 @@ export function MeldenPage() {
   return (
     <div className="mx-auto max-w-3xl space-y-4 lg:space-y-6">
       <SeitenKopf
-        titel="Mangel melden"
-        untertitel="Kurz beschreiben, was dir aufgefallen ist. Die Werkstatt meldet sich zurück."
+        titel="Beanstandung melden"
+        untertitel="Kurz beschreiben, was dir aufgefallen ist. Die Instandhaltung meldet sich zurück."
       />
 
       <form onSubmit={absenden} className="space-y-4" noValidate>
         <Panel>
-          <PanelKopf titel="1 · Flugzeug" />
+          <PanelKopf titel="1 · Luftfahrzeug" />
           {flotte.isPending ? (
             <Laden />
           ) : flotte.isError ? (
@@ -188,7 +189,7 @@ export function MeldenPage() {
             </div>
           ) : (
             <fieldset className="grid gap-2 p-4 sm:grid-cols-2">
-              <legend className="sr-only">Flugzeug</legend>
+              <legend className="sr-only">Luftfahrzeug</legend>
               {aktive.map((f) => (
                 <label
                   key={f.id}
@@ -218,7 +219,7 @@ export function MeldenPage() {
                   <p key={g}>• {g}</p>
                 ))}
                 {(gewaehlt.anzahl_in_pruefung ?? 0) > 0 && (
-                  <p>• {gewaehlt.anzahl_in_pruefung} Meldung(en) in Prüfung</p>
+                  <p>• {gewaehlt.anzahl_in_pruefung} Beanstandung(en) in Prüfung</p>
                 )}
                 <p>
                   <Link to={`/flugzeuge/${gewaehlt.id}`} className="font-medium underline">
@@ -257,15 +258,15 @@ export function MeldenPage() {
               className={`rounded-md border p-3 ${vnf ? 'border-ampel-rot bg-red-50' : 'border-rand-stark'}`}
             >
               <Haken
-                label="Ich halte das Flugzeug für nicht flugklar"
-                hinweis="Das Flugzeug wird sofort für alle rot angezeigt („vorläufig nicht flugklar“), bis ein Wart entscheidet."
+                label="Ich halte das Luftfahrzeug für nicht flugklar"
+                hinweis="Das Luftfahrzeug wird sofort für alle rot angezeigt („vorläufig nicht flugklar“), bis ein Wart entscheidet."
                 checked={vnf}
                 onChange={(e) => (e.target.checked ? setVnfFrage(true) : setVnf(false))}
               />
             </div>
             {wart && (
               <p className="text-text-2 mt-3 text-sm">
-                Als Wart kannst du die Meldung danach direkt im Meldungseingang einstufen.
+                Als Wart kannst du die Beanstandung danach direkt im Beanstandungseingang einstufen.
               </p>
             )}
           </div>
@@ -289,7 +290,7 @@ export function MeldenPage() {
             laedt={Boolean(schritt)}
             disabled={Boolean(fehlt)}
           >
-            {schritt ?? 'Meldung absenden'}
+            {schritt ?? 'Beanstandung absenden'}
           </Button>
         </div>
         {fehlt && <p className="text-text-3 text-right text-sm">{fehlt}</p>}
@@ -309,7 +310,7 @@ export function MeldenPage() {
                 setVnfFrage(false)
               }}
             >
-              Ja, Flugzeug ist nicht flugklar
+              Ja, Luftfahrzeug ist nicht flugklar
             </Button>
           </>
         }
@@ -318,10 +319,10 @@ export function MeldenPage() {
           {gewaehlt ? (
             <strong className="font-mono">{gewaehlt.kennzeichen}</strong>
           ) : (
-            'Das Flugzeug'
+            'Das Luftfahrzeug'
           )}{' '}
           wird nach dem Absenden sofort für alle Piloten als gesperrt angezeigt, bis ein Wart die
-          Meldung einstuft.
+          Beanstandung einstuft.
         </p>
       </Dialog>
     </div>

@@ -157,8 +157,19 @@ function StatusDialog({
       )}
       {wunsch.status === 'erledigt' && a.report_id && !blockiert && (
         <Hinweis>
-          Die zugehörige Meldung {meldungsNr(a.report_nr)} bleibt offen. Sie wird im Meldungseingang
-          mit der Maßnahme abgeschlossen{a.kennzeichen ? ` (bei Kat 1 mit „wieder flugklar“)` : ''}.
+          Die zugehörige Beanstandung {meldungsNr(a.report_nr)} bleibt offen. Sie wird im
+          Beanstandungseingang mit der Maßnahme abgeschlossen
+          {a.kennzeichen ? ` (bei Kat 1 mit „wieder flugklar“)` : ''}.
+        </Hinweis>
+      )}
+      {wunsch.status === 'erledigt' && a.template_id && a.aircraft_id && !blockiert && (
+        <Hinweis ton="warnung">
+          Wartung aus einem Wartungsprogramm: Eine Sperre „In Wartung“ bleibt bestehen, bis du sie
+          am Luftfahrzeug{' '}
+          <Link to={`/flugzeuge/${a.aircraft_id}`} className="font-medium underline">
+            {a.kennzeichen}
+          </Link>{' '}
+          bewusst aufhebst. Eintrag ins Bordbuch nicht vergessen.
         </Hinweis>
       )}
     </Dialog>
@@ -523,7 +534,7 @@ export function AufgabeDetail() {
           <DatenFelder>
             <DatenFeld label="Zuständig">{a.zustaendig_name ?? 'Nicht zugewiesen'}</DatenFeld>
             <DatenFeld label="Priorität">{PRIORITAET_TEXT[a.prioritaet]}</DatenFeld>
-            <DatenFeld label="Flugzeug" mono>
+            <DatenFeld label="Luftfahrzeug" mono>
               {a.aircraft_id ? (
                 <Link to={`/flugzeuge/${a.aircraft_id}`} className="text-primaer hover:underline">
                   {a.kennzeichen}
@@ -532,7 +543,7 @@ export function AufgabeDetail() {
                 <span className="font-sans">Allgemein</span>
               )}
             </DatenFeld>
-            <DatenFeld label="Meldung" mono>
+            <DatenFeld label="Beanstandung" mono>
               {a.report_id ? (
                 <Link
                   to={`/werkstatt/meldungen/${a.report_id}`}

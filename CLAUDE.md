@@ -6,28 +6,39 @@ Gemeinsame Regeln für alle Claude-Code-Sitzungen im Team. Ausführlich: `docs/h
 
 Vereins-Web-App (PWA) für den Flugplatz EDKN, nach dem Vorbild des Tech Log in der Airline:
 
-- Piloten sehen vor dem Flug den technischen Stand jedes Vereinsflugzeugs (Ampel, Hinweise, Verlauf).
-- Jeder freigegebene Nutzer meldet Mängel mit Foto und Text.
-- Warte stufen Meldungen ein, sperren Flugzeuge und geben sie wieder frei.
+- Piloten sehen vor dem Flug den technischen Stand jedes Luftfahrzeugs des Vereins (Ampel, offene Punkte, Verlauf). Der Verein betreibt Motor- und Segelflug, nichts segelflug-spezifisch bauen.
+- Jeder freigegebene Nutzer meldet Beanstandungen mit Foto und Text.
+- Warte stufen Beanstandungen ein, sperren Luftfahrzeuge und geben sie wieder frei. Dazu Fristen, Betriebsstunden, Wartungsprogramme und Archiv (Instandhaltung).
 
 Das Tool ist **eigenständig** (nicht Teil des SMS-Portals) und **ersetzt nicht** Bordbuch, CAO-Software oder Prüfer-Freigaben. Nichts bauen, was danach aussieht.
 
-## Begriffe (in Code und UI genau so)
+## Begriffe (in der UI genau so)
 
-| Begriff                  | Bedeutung                                                                          |
-| ------------------------ | ---------------------------------------------------------------------------------- |
-| Wart                     | darf Meldungen einstufen und Flugzeuge sperren                                     |
-| Melder                   | Person, die eine Meldung erstellt hat                                              |
-| Kat 1                    | sofort reparieren, Flugzeug rot, solange offen                                     |
-| Kat 2                    | später erledigen (Ziel z. B. „Winterarbeit 26/27“), fliegbar                       |
-| Kat 3                    | keine Maßnahme, Meldung wird abgelegt                                              |
-| Sperre                   | manuelle Sperre am Flugzeug, mit Pflicht-Grund. Internes Signal, keine Stilllegung |
-| vorläufig nicht flugklar | Melder hält es für nicht flugklar → sofort rot, bis ein Wart einstuft              |
-| Pilotenhinweis           | verständlicher Text des Warts zu einem Kat-2-Punkt, für alle Piloten sichtbar      |
-| Ampel                    | `gruen` Klar · `gelb` Klar mit Hinweisen · `rot` Gesperrt                          |
-| Freigabe                 | neues Konto (`ausstehend`) muss vom Admin freigegeben werden                       |
-| Aufgabe                  | interne To-do der Werkstatt mit Frist, Zuständigem, Teilschritten. Keine Ampel     |
-| Arbeitsstand             | Kommentar an einer Aufgabe: was ist gemacht, was fehlt (Übergabe)                  |
+UI-Texte im Tech-Log-Stil (seit v0.3). Code-Namen bleiben wie im Schema (`reports`, `Meldung`, `/werkstatt/…`), damit Migrationen und Typen stabil bleiben.
+
+| Begriff (UI)             | Code                    | Bedeutung                                                                                        |
+| ------------------------ | ----------------------- | ------------------------------------------------------------------------------------------------ |
+| Beanstandung             | `reports`, „Meldung“    | gemeldeter Mangel oder Symptom an einem Luftfahrzeug                                             |
+| Luftfahrzeug             | `aircraft`, „Flugzeug“  | Segelflugzeug, Motorsegler, UL, Motorflugzeug (`flugzeug_art`)                                   |
+| Instandhaltung           | `workshop`, „Werkstatt“ | Bereich der Warte (Modus in der App)                                                             |
+| Flugbetrieb              |                         | normale Ansicht für alle (Modus in der App)                                                      |
+| Wart                     | `wart`                  | darf Beanstandungen einstufen und Luftfahrzeuge sperren                                          |
+| Melder                   |                         | Person, die eine Beanstandung erfasst hat                                                        |
+| Kat 1                    |                         | nicht lufttüchtig, sofort beheben, Luftfahrzeug rot, solange offen                               |
+| Kat 2                    |                         | zurückgestellt (Ziel z. B. „Winterarbeit 26/27“), fliegbar                                       |
+| Kat 3                    |                         | kein Handlungsbedarf, wird abgelegt                                                              |
+| unter Beobachtung        | `beobachten`            | Kat 3 mit Pilotenhinweis, bis ein Wart die Beobachtung beendet. Keine Ampel                      |
+| Sperre                   |                         | manuelle Sperre am Luftfahrzeug, mit Pflicht-Grund. Internes Signal, keine Stilllegung           |
+| vorläufig nicht flugklar |                         | Melder hält es für nicht flugklar → sofort rot, bis ein Wart einstuft                            |
+| Pilotenhinweis           |                         | verständlicher Text des Warts (Kat 1 Sperrgrund, Kat 2 optional, Beobachtung), für alle sichtbar |
+| Ampel                    |                         | `gruen` Klar · `gelb` Klar mit Hinweisen · `rot` Gesperrt                                        |
+| Freigabe                 |                         | neues Konto (`ausstehend`) muss vom Admin freigegeben werden                                     |
+| Aufgabe                  | `tasks`                 | interne To-do der Instandhaltung mit Frist, Zuständigem, Teilschritten. Keine Ampel              |
+| Arbeitsstand             |                         | Kommentar an einer Aufgabe: was ist gemacht, was fehlt (Übergabe)                                |
+| Maßnahme                 | `reports.massnahme`     | wie eine Beanstandung abgeschlossen wurde (Archiv), bei Kat 3 die Begründung                     |
+| Frist                    | `deadlines`             | Kontrolle/Lebensdauer nach Datum und/oder Betriebsstunden, optional mit Intervall. Keine Ampel   |
+| Betriebsstunden          | `aircraft_counters`     | Zählerstand in Minuten (`hhhh:mm` in der UI), manuell oder später aus Vereinsflieger             |
+| Wartungsprogramm         | `maintenance_templates` | gespeicherte Checkliste; „Wartung beginnen“ legt daraus eine Aufgabe an, optional mit Sperre     |
 
 Rollen: `pilot` (Standard) · `wart` · `admin`. Freigabe: `ausstehend` · `freigegeben` · `abgelehnt` · `deaktiviert`.
 Meldungsstatus: `neu` → (Kat 1) `in_arbeit` → `erledigt` · (Kat 2) `zurueckgestellt` → `in_arbeit` → `erledigt` · (Kat 3) `abgelegt`.
@@ -39,7 +50,8 @@ Aufgabenstatus: `offen` → `in_arbeit` ⇄ `wartet` → `erledigt` / `verworfen
 - Kat 1: `pilotenhinweis` ist Pflicht und immer sichtbar (= Sperrgrund für Piloten). Erledigen erfordert die Bestätigung „Flugzeug ist wieder flugklar“ (Verlaufseintrag).
 - Kat 2: Ziel Pflicht, Pilotenhinweis optional. Kat 3: Begründung Pflicht, wird Rückmeldung an den Melder.
 - Erledigen einer Meldung braucht die durchgeführte Maßnahme (Rückmeldung an den Melder).
-- Aufgaben: nur Warte/Admins sehen sie, kein Einfluss auf die Ampel, keine Wartungsfristen nach Stunden/Starts. „Wartet“/„Verworfen“/„Wieder öffnen“ brauchen Text, „Erledigt“ nur ohne offene Teilschritte. Verlauf in `task_events`.
+- Aufgaben: nur Warte/Admins sehen sie, kein Einfluss auf die Ampel. „Wartet“/„Verworfen“/„Wieder öffnen“ brauchen Text, „Erledigt“ nur ohne offene Teilschritte. Verlauf in `task_events`.
+- Fristen, Betriebsstunden und Wartungsprogramme: nur Warte/Admins, kein Einfluss auf die Ampel, ersetzen weder Bordbuch noch CAMO. Fristen haben ihren Verlauf in `deadline_events`. Zählerstände steigen nur (RPC prüft).
 - Warte dürfen umstufen (Verlaufseintrag). Melder können nach dem Absenden nur noch einen Nachtrag kommentieren.
 - Piloten sehen Namen der Warte, aber nicht, wer fremde Meldungen abgegeben hat.
 - Jede Erstellung, Einstufung, jeder Statuswechsel, jede Sperre/Entsperrung und jeder Kommentar erzeugt einen Eintrag in `report_events`, und zwar in RPCs bzw. Triggern, nicht im Frontend.
@@ -48,7 +60,7 @@ Aufgabenstatus: `offen` → `in_arbeit` ⇄ `wartet` → `erledigt` / `verworfen
 ## Sicherheitsregeln (nicht verhandelbar)
 
 - RLS auf **allen** Tabellen. Hilfsfunktionen (`is_approved()`, `current_rolle()`, `is_wart()`, `is_admin()`) als `security definer`, `stable`, mit `search_path = ''`.
-- Clients schreiben nur über RPCs (`report_create`, `report_einstufen`, `report_set_status`, `report_comment`, `aircraft_sperren`, `aircraft_entsperren`, `admin_update_user`, `task_create`, `task_update`, `task_set_status`, `task_comment`, `task_item_add`, `task_item_set`, `task_item_delete`). Neue Schreibwege ebenfalls als RPC, die den Verlauf schreibt. Neue Funktionen: `execute` für `public`/`anon` entziehen.
+- Clients schreiben nur über RPCs (`report_create`, `report_einstufen`, `report_set_status`, `report_comment`, `aircraft_sperren`, `aircraft_entsperren`, `admin_update_user`, `task_create`, `task_update`, `task_set_status`, `task_comment`, `task_item_add`, `task_item_set`, `task_item_delete`, `report_beobachtung_beenden`, `aircraft_counter_add`, `deadline_save`, `deadline_erledigen`, `deadline_abschliessen`, `template_save`, `template_set_aktiv`, `wartung_starten`). Ausnahme wie bisher: Admin pflegt Luftfahrzeug-Stammdaten direkt (RLS). Neue Schreibwege ebenfalls als RPC, die den Verlauf schreibt. Neue Funktionen: `execute` für `public`/`anon` entziehen.
 - Niemand ändert seine eigene `rolle` oder `freigabe`. Nur über die RPC `admin_update_user` (prüft `is_admin()`), direkter UPDATE wird blockiert.
 - Ausstehende und abgelehnte Nutzer bekommen per RLS keine Daten, nicht nur in der UI.
 - Service-Role-/Secret-Key nie ins Frontend und nie ins Repo. Keine `.env` committen, nur `.env.example`.
@@ -86,7 +98,7 @@ Vor jedem Commit: `npm run typecheck && npm run lint && npm run format:check && 
 
 ```
 src/app/         Routing, Layout, Guards
-src/features/    auth · admin · aircraft · reports · workshop (je ein Bereich)
+src/features/    auth · admin · aircraft · reports · workshop · maintenance (je ein Bereich)
 src/components/  UI-Bausteine (z. B. Ampel)
 src/lib/         Supabase-Client, Bildkompression, Helfer
 supabase/        migrations/ · seed.sql · tests/
@@ -100,7 +112,8 @@ docs/            konzept · handoff · entscheidungen
 - Schreibende Aktionen über `useAktion` (`@/lib/useAktion`): Toast + alle Daten neu laden.
 - Ampel immer mit **Farbe + Symbol + Text** (Komponente `@/components/Ampel`).
 - Footer-Hinweis bleibt: „Internes Meldetool des Vereins – ersetzt nicht Bordbuch oder Prüferfreigabe.“
-- Fotos im Browser verkleinern (lange Kante ca. 1600 px, JPEG ca. 0,8), maximal 3 pro Meldung.
+- Fotos im Browser verkleinern (lange Kante ca. 1600 px, JPEG ca. 0,8), maximal 3 pro Beanstandung.
+- Menü: Warte/Admins schalten zwischen „Flugbetrieb“ und „Instandhaltung“ um (`src/app/modus.ts`). Werkzeuge der Instandhaltung (Sperren, Wartung beginnen …) erscheinen nur im Modus Instandhaltung. Neue Menüpunkte in `src/app/navigation.ts`, Selten-Gebrauchtes unter „Verwaltung“.
 
 ## Team-Workflow
 

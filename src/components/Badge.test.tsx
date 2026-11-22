@@ -8,7 +8,7 @@ describe('Etiketten', () => {
     expect(screen.getByText('KAT 1')).toBeVisible()
   })
 
-  it('zeigt nicht eingestufte Meldungen als „KAT –“', () => {
+  it('zeigt nicht eingestufte Beanstandungen als „KAT –“', () => {
     render(<KatBadge kategorie={null} />)
     expect(screen.getByText('KAT –')).toBeVisible()
   })

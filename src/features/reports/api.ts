@@ -88,7 +88,7 @@ export async function meldungAnlegen(
   neu: NeueMeldung,
   fortschritt?: (schritt: string) => void,
 ): Promise<MeldungErgebnis> {
-  fortschritt?.('Meldung wird gespeichert …')
+  fortschritt?.('Beanstandung wird gespeichert …')
   const id = pruefe(
     await supabase.rpc('report_create', {
       p_aircraft_id: neu.aircraftId,

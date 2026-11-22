@@ -3,6 +3,7 @@ import { render, screen } from '@testing-library/react'
 import { createMemoryRouter, RouterProvider } from 'react-router'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { FOOTER_HINWEIS } from './hinweise'
+import { setModus } from './modus'
 import { Providers } from './Providers'
 import { routes } from './routes'
 
@@ -67,6 +68,7 @@ const FLUGZEUG = {
   sperrgruende: [],
   anzahl_in_pruefung: 0,
   hinweise: [],
+  beobachtungen: [],
 }
 
 function renderAt(path: string) {
@@ -84,6 +86,7 @@ describe('Routen und Freigabe', () => {
   beforeEach(() => {
     fake.session = null
     fake.tabellen = {}
+    setModus('flugbetrieb')
   })
 
   it('schickt ohne Anmeldung zur Anmeldeseite', async () => {
@@ -120,11 +123,12 @@ describe('Routen und Freigabe', () => {
     ).toBeInTheDocument()
     expect(await screen.findByText('D-9001')).toBeInTheDocument()
     expect(screen.getByText(FOOTER_HINWEIS)).toBeInTheDocument()
-    // Werkstatt ist für Piloten nicht im Menü
-    expect(screen.queryByRole('link', { name: /Meldungseingang/ })).not.toBeInTheDocument()
+    // Instandhaltung ist für Piloten nicht im Menü, auch kein Umschalter
+    expect(screen.queryByRole('link', { name: /Beanstandungseingang/ })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /Instandhaltung/ })).not.toBeInTheDocument()
   })
 
-  it('leitet Piloten von der Werkstatt zur Startseite um', async () => {
+  it('leitet Piloten von der Instandhaltung zur Startseite um', async () => {
     fake.session = { user: { id: 'u1' } }
     fake.tabellen.profiles = [PROFIL]
     const router = renderAt('/werkstatt/aufgaben')
@@ -134,12 +138,73 @@ describe('Routen und Freigabe', () => {
     expect(router.state.location.pathname).toBe('/')
   })
 
-  it('zeigt Warten die Werkstatt im Menü', async () => {
+  it('zeigt Warten die Instandhaltung im Menü', async () => {
     fake.session = { user: { id: 'u1' } }
     fake.tabellen.profiles = [{ ...PROFIL, rolle: 'wart' }]
     renderAt('/werkstatt/aufgaben')
     expect(await screen.findByRole('heading', { level: 1, name: 'Aufgaben' })).toBeInTheDocument()
-    expect(screen.getAllByRole('link', { name: /Meldungseingang/ }).length).toBeGreaterThan(0)
+    expect(screen.getAllByRole('link', { name: /Beanstandungseingang/ }).length).toBeGreaterThan(0)
+    // Adresse der Instandhaltung schaltet den Modus um
+    expect(screen.getAllByRole('button', { name: /Instandhaltung/ })[0]).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    )
+  })
+
+  it('zeigt Warten im Flugbetrieb die Piloten-Ansicht mit Umschalter', async () => {
+    fake.session = { user: { id: 'u1' } }
+    fake.tabellen.profiles = [{ ...PROFIL, rolle: 'wart' }]
+    fake.tabellen.aircraft_overview = [FLUGZEUG]
+    renderAt('/')
+    expect(
+      await screen.findByRole('heading', { level: 1, name: 'Flottenstatus' }),
+    ).toBeInTheDocument()
+    expect(screen.getAllByRole('button', { name: /Flugbetrieb/ })[0]).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    )
+    expect(screen.queryByRole('link', { name: /Beanstandungseingang/ })).not.toBeInTheDocument()
+  })
+
+  it('zeigt Piloten offene Punkte nach Wichtigkeit gruppiert', async () => {
+    fake.session = { user: { id: 'u1' } }
+    fake.tabellen.profiles = [PROFIL]
+    fake.tabellen.aircraft_overview = [
+      {
+        ...FLUGZEUG,
+        ampel: 'rot',
+        gesperrt: true,
+        sperrgrund: 'In Wartung: 50-h-Kontrolle',
+        sperrgruende: ['In Wartung: 50-h-Kontrolle'],
+        beobachtungen: [
+          { report_id: 'r9', pilotenhinweis: 'Trimmung etwas schwergängig', eingestuft_am: null },
+        ],
+      },
+    ]
+    renderAt('/beanstandungen')
+    expect(await screen.findByText('In Wartung: 50-h-Kontrolle')).toBeInTheDocument()
+    expect(screen.getByText('Trimmung etwas schwergängig')).toBeInTheDocument()
+    const titel = screen.getAllByRole('heading', { level: 2 }).map((h) => h.textContent)
+    expect(titel.findIndex((t) => t?.includes('Nicht lufttüchtig'))).toBeLessThan(
+      titel.findIndex((t) => t?.includes('Unter Beobachtung')),
+    )
+  })
+
+  it('lässt Warte nicht in die Admin-Verwaltung', async () => {
+    fake.session = { user: { id: 'u1' } }
+    fake.tabellen.profiles = [{ ...PROFIL, rolle: 'wart' }]
+    const router = renderAt('/verwaltung/nutzer')
+    expect(
+      await screen.findByRole('heading', { level: 1, name: 'Flottenstatus' }),
+    ).toBeInTheDocument()
+    expect(router.state.location.pathname).toBe('/')
+  })
+
+  it('zeigt Warten die Fristen', async () => {
+    fake.session = { user: { id: 'u1' } }
+    fake.tabellen.profiles = [{ ...PROFIL, rolle: 'wart' }]
+    renderAt('/werkstatt/fristen')
+    expect(await screen.findByRole('heading', { level: 1, name: 'Fristen' })).toBeInTheDocument()
   })
 
   it('zeigt bei unbekannter Adresse „Seite nicht gefunden“', async () => {

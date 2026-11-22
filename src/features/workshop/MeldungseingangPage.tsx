@@ -112,8 +112,8 @@ export function MeldungseingangPage() {
     <div className="space-y-4 lg:space-y-6">
       <div className={id ? 'hidden lg:block' : ''}>
         <SeitenKopf
-          titel="Meldungseingang"
-          untertitel="Meldungen einstufen, bearbeiten und abschließen."
+          titel="Beanstandungseingang"
+          untertitel="Beanstandungen einstufen, bearbeiten und abschließen."
         />
       </div>
 
@@ -168,7 +168,7 @@ export function MeldungseingangPage() {
           </div>
           <div className="border-rand border-b p-3">
             <label className="sr-only" htmlFor="flugzeugfilter">
-              Flugzeug
+              Luftfahrzeug
             </label>
             <select
               id="flugzeugfilter"
@@ -176,7 +176,7 @@ export function MeldungseingangPage() {
               onChange={(e) => setze('flugzeug', e.target.value)}
               className="border-rand-stark min-h-11 w-full rounded-md border bg-white px-3 text-base lg:min-h-9 lg:text-sm"
             >
-              <option value="">Alle Flugzeuge</option>
+              <option value="">Alle Luftfahrzeuge</option>
               {flugzeuge.map(([fid, kz]) => (
                 <option key={fid} value={fid}>
                   {kz}
@@ -193,7 +193,7 @@ export function MeldungseingangPage() {
           ) : liste.length === 0 ? (
             <Leer
               icon={<Inbox />}
-              titel={reiter === 'neu' ? 'Keine neuen Meldungen' : 'Keine Meldungen'}
+              titel={reiter === 'neu' ? 'Keine neuen Beanstandungen' : 'Keine Beanstandungen'}
             >
               {reiter === 'neu' && 'Alles eingestuft.'}
             </Leer>
@@ -216,8 +216,8 @@ export function MeldungseingangPage() {
 export function MeldungPlatzhalter() {
   return (
     <Panel className="hidden lg:block">
-      <Leer icon={<Inbox />} titel="Meldung auswählen">
-        Links eine Meldung wählen, um sie einzustufen oder zu bearbeiten.
+      <Leer icon={<Inbox />} titel="Beanstandung auswählen">
+        Links eine Beanstandung wählen, um sie einzustufen oder zu bearbeiten.
       </Leer>
     </Panel>
   )

@@ -52,7 +52,7 @@ export function FotoGalerie({ reportId, anzahl }: { reportId: string; anzahl: nu
 }
 
 const TYP_TEXT: Record<string, string> = {
-  erstellt: 'Meldung erstellt',
+  erstellt: 'Beanstandung erfasst',
   kommentar: 'Kommentar',
   statuswechsel: 'Status',
   kategorie: 'Einstufung',
@@ -120,7 +120,7 @@ export function KommentarForm({ reportId, wart }: { reportId: string; wart: bool
         value={text}
         onChange={(e) => setText(e.target.value)}
         placeholder={
-          wart ? 'Kommentar schreiben …' : 'Nachtrag zur Meldung (z. B. neue Beobachtung) …'
+          wart ? 'Kommentar schreiben …' : 'Nachtrag zur Beanstandung (z. B. neue Beobachtung) …'
         }
       />
       <div className="flex flex-wrap items-center justify-between gap-2">
@@ -132,7 +132,7 @@ export function KommentarForm({ reportId, wart }: { reportId: string; wart: bool
           />
         ) : (
           <span className="text-text-3 text-xs">
-            Die Meldung selbst kann nicht mehr geändert werden.
+            Die Beanstandung selbst kann nicht mehr geändert werden.
           </span>
         )}
         <Button type="submit" art="primaer" laedt={kommentieren.isPending} disabled={!text.trim()}>

@@ -1,16 +1,101 @@
-import { ArrowLeft, ListTodo, Play } from 'lucide-react'
+import { ArrowLeft, EyeOff, ListTodo, Play } from 'lucide-react'
 import { useState } from 'react'
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router'
 import { AufgabeStatusBadge, FristBadge, KatBadge, MeldungStatusBadge } from '@/components/Badge'
 import { Button } from '@/components/Button'
 import { FehlerBox, Hinweis, Laden, Leer } from '@/components/Feedback'
+import { Eingabe, Feld } from '@/components/Form'
 import { DatenFeld, DatenFelder, Panel, PanelKopf } from '@/components/Panel'
 import { useMeldung, useMeldungVerlauf, type Meldung } from '@/features/reports/api'
 import { FotoGalerie, KommentarForm, MeldungFeed } from '@/features/reports/MeldungTeile'
 import { aufgabenNr, meldungsNr, zeitpunkt } from '@/lib/format'
-import { istOffen, useAufgaben, useMeldungStatus } from './api'
+import { istOffen, useAufgaben, useBeobachtungBeenden, useMeldungStatus } from './api'
 import { AufgabeDialog } from './AufgabeDialog'
 import { EinstufenForm, ErledigenForm } from './Einstufung'
+
+/** Abgeschlossen: Maßnahme bzw. Befund, bei Kat 3 Beobachtung beenden oder umstufen */
+function Abgeschlossen({ m }: { m: Meldung }) {
+  const beenden = useBeobachtungBeenden()
+  const [ergebnis, setErgebnis] = useState('')
+  const [umstufen, setUmstufen] = useState(false)
+  const titel =
+    m.status === 'erledigt'
+      ? 'Erledigt'
+      : m.beobachten
+        ? 'Kat 3 – unter Beobachtung'
+        : 'Abgelegt (Kat 3)'
+
+  return (
+    <Panel>
+      <PanelKopf titel={titel} />
+      <div className="space-y-4 p-4">
+        <DatenFelder>
+          <DatenFeld label={m.status === 'erledigt' ? 'Maßnahme' : 'Befund / Begründung'} breit>
+            {m.massnahme ?? 'Steht in der Aktivität.'}
+          </DatenFeld>
+          {m.erledigt_am && (
+            <DatenFeld label="Erledigt am" mono>
+              {zeitpunkt(m.erledigt_am)}
+            </DatenFeld>
+          )}
+        </DatenFelder>
+
+        {m.beobachten && (
+          <form
+            className="space-y-3 rounded-md border border-violet-300 bg-violet-50 p-3"
+            onSubmit={(e) => {
+              e.preventDefault()
+              if (ergebnis.trim()) beenden.mutate({ reportId: m.id, text: ergebnis.trim() })
+            }}
+          >
+            <p className="text-sm">
+              <span className="font-semibold">Hinweis für Piloten:</span> {m.pilotenhinweis}
+            </p>
+            <Feld label="Ergebnis der Beobachtung" pflicht>
+              {(p) => (
+                <Eingabe
+                  {...p}
+                  maxLength={500}
+                  value={ergebnis}
+                  onChange={(e) => setErgebnis(e.target.value)}
+                  placeholder="z. B. seit 10 Flügen unauffällig"
+                />
+              )}
+            </Feld>
+            <div className="flex justify-end">
+              <Button
+                type="submit"
+                icon={<EyeOff aria-hidden="true" className="size-4" />}
+                disabled={!ergebnis.trim()}
+                laedt={beenden.isPending}
+              >
+                Beobachtung beenden
+              </Button>
+            </div>
+          </form>
+        )}
+
+        {m.status === 'abgelegt' && (
+          <div className="border-rand border-t pt-3">
+            <button
+              type="button"
+              onClick={() => setUmstufen(!umstufen)}
+              aria-expanded={umstufen}
+              className="text-primaer min-h-10 text-sm font-medium hover:underline"
+            >
+              {umstufen ? 'Umstufen schließen' : 'Umstufen oder Angaben ändern'}
+            </button>
+            {umstufen && (
+              <div className="pt-3">
+                <EinstufenForm m={m} onEingestuft={() => setUmstufen(false)} />
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    </Panel>
+  )
+}
 
 function Bearbeitung({
   m,
@@ -36,16 +121,7 @@ function Bearbeitung({
   }
 
   if (m.status === 'erledigt' || m.status === 'abgelegt') {
-    return (
-      <Panel>
-        <PanelKopf titel="Abgeschlossen" />
-        <p className="text-text-2 p-4 text-sm">
-          {m.status === 'erledigt'
-            ? `Erledigt am ${m.erledigt_am ? zeitpunkt(m.erledigt_am) : '–'}. Die Maßnahme steht in der Aktivität.`
-            : 'Als Kat 3 abgelegt. Die Begründung steht in der Aktivität.'}
-        </p>
-      </Panel>
-    )
+    return <Abgeschlossen m={m} />
   }
 
   return (
@@ -108,7 +184,7 @@ export function MeldungBearbeiten() {
   if (!m)
     return (
       <Panel>
-        <Leer titel="Meldung nicht gefunden" />
+        <Leer titel="Beanstandung nicht gefunden" />
       </Panel>
     )
 
@@ -140,8 +216,8 @@ export function MeldungBearbeiten() {
           </div>
           {m.vorlaeufig_nicht_flugklar && m.status === 'neu' && (
             <Hinweis ton="gefahr" titel="Vorläufig nicht flugklar">
-              Der Melder hält das Flugzeug für nicht flugklar. Es ist rot, bis du die Meldung
-              einstufst.
+              Der Melder hält das Luftfahrzeug für nicht flugklar. Es ist rot, bis du die
+              Beanstandung einstufst.
             </Hinweis>
           )}
           <DatenFelder>
@@ -203,7 +279,9 @@ export function MeldungBearbeiten() {
           }
         />
         {zugehoerig.length === 0 ? (
-          <p className="text-text-2 px-4 py-4 text-sm">Noch keine Aufgaben zu dieser Meldung.</p>
+          <p className="text-text-2 px-4 py-4 text-sm">
+            Noch keine Aufgaben zu dieser Beanstandung.
+          </p>
         ) : (
           <ul className="divide-rand divide-y">
             {zugehoerig.map((a) => (
@@ -251,7 +329,7 @@ export function MeldungBearbeiten() {
             reportNr: m.nr,
             aircraftId: m.aircraft_id,
             titel: m.text.split('\n')[0]?.slice(0, 150),
-            beschreibung: `Aus Meldung ${meldungsNr(m.nr)}: ${m.text}`.slice(0, 4000),
+            beschreibung: `Aus Beanstandung ${meldungsNr(m.nr)}: ${m.text}`.slice(0, 4000),
             prioritaet: m.kategorie === 1 || m.vorlaeufig_nicht_flugklar ? 'hoch' : 'normal',
           }}
         />

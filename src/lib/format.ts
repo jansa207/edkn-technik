@@ -76,3 +76,31 @@ export function name(vorname?: string | null, nachname?: string | null): string 
 export function anzahl(n: number, einzahl: string, mehrzahl: string): string {
   return `${n} ${n === 1 ? einzahl : mehrzahl}`
 }
+
+/** Betriebsminuten → „1234:05 h“ (Stunden:Minuten wie im Bordbuch) */
+export function stunden(minuten: number | null | undefined): string {
+  if (minuten == null) return '–'
+  const vorzeichen = minuten < 0 ? '−' : ''
+  const m = Math.abs(minuten)
+  return `${vorzeichen}${Math.floor(m / 60)}:${String(m % 60).padStart(2, '0')} h`
+}
+
+/**
+ * Eingabe „1234:05“, „1234,5“ oder „1234“ (Stunden) → Minuten. Ungültig → null.
+ */
+export function minutenAus(eingabe: string): number | null {
+  const s = eingabe.trim().replace(/\s*h$/i, '')
+  const hm = /^(\d{1,6}):([0-5]\d)$/.exec(s)
+  if (hm) return Number(hm[1]) * 60 + Number(hm[2])
+  const dez = /^(\d{1,6})(?:[.,](\d{1,2}))?$/.exec(s)
+  if (dez) return Math.round(Number(`${dez[1]}.${dez[2] ?? '0'}`) * 60)
+  return null
+}
+
+/** Datum (YYYY-MM-DD) plus Monate wie in Postgres (31.01. + 1 Monat = 28.02.) */
+export function plusMonate(isoDatum: string, monate: number): string {
+  const [j, m, t] = isoDatum.split('-').map(Number) as [number, number, number]
+  const letzterTag = new Date(Date.UTC(j, m - 1 + monate + 1, 0)).getUTCDate()
+  const d = new Date(Date.UTC(j, m - 1 + monate, Math.min(t, letzterTag)))
+  return d.toISOString().slice(0, 10)
+}

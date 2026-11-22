@@ -41,7 +41,7 @@ function FlugzeugZeile({ f, gewaehlt }: { f: Flugzeug; gewaehlt: boolean }) {
           )}
           {(f.anzahl_in_pruefung ?? 0) > 0 && (
             <p className="text-text-2 mt-0.5 text-xs">
-              {anzahl(f.anzahl_in_pruefung ?? 0, 'Meldung', 'Meldungen')} in Prüfung
+              {anzahl(f.anzahl_in_pruefung ?? 0, 'Beanstandung', 'Beanstandungen')} in Prüfung
             </p>
           )}
         </div>
@@ -96,13 +96,13 @@ export function FlottePage() {
           label="In Prüfung"
           wert={flotte.data ? zahlen.pruefung : '–'}
           ton="blau"
-          hinweis="Meldungen ohne Einstufung"
+          hinweis="Beanstandungen ohne Einstufung"
         />
       </div>
 
       <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-[minmax(320px,400px)_1fr] lg:gap-6">
         <Panel className={id ? 'hidden lg:block' : ''}>
-          <PanelKopf titel="Flugzeuge" zusatz={flotte.data ? aktive.length : undefined} />
+          <PanelKopf titel="Luftfahrzeuge" zusatz={flotte.data ? aktive.length : undefined} />
           <div className="border-rand space-y-3 border-b p-3">
             <div className="relative">
               <Search
@@ -114,7 +114,7 @@ export function FlottePage() {
                 value={suche}
                 onChange={(e) => setSuche(e.target.value)}
                 placeholder="Kennzeichen oder Muster"
-                aria-label="Flugzeug suchen"
+                aria-label="Luftfahrzeug suchen"
                 className="border-rand-stark focus:border-primaer focus:ring-primaer/20 min-h-11 w-full rounded-md border bg-white pr-3 pl-9 text-base focus:ring-2 focus:outline-none lg:min-h-9 lg:text-sm"
               />
             </div>
@@ -139,7 +139,7 @@ export function FlottePage() {
               <FehlerBox fehler={flotte.error} nochmal={() => void flotte.refetch()} />
             </div>
           ) : liste.length === 0 ? (
-            <Leer icon={<Plane />} titel="Keine Flugzeuge gefunden" />
+            <Leer icon={<Plane />} titel="Keine Luftfahrzeuge gefunden" />
           ) : (
             <ul className="divide-rand divide-y">
               {liste.map((f) => (
@@ -161,8 +161,8 @@ export function FlottePage() {
 export function FlugzeugPlatzhalter() {
   return (
     <Panel className="hidden lg:block">
-      <Leer icon={<Plane />} titel="Flugzeug auswählen">
-        Links ein Flugzeug wählen, um Sperrgründe, Pilotenhinweise und den Verlauf zu sehen.
+      <Leer icon={<Plane />} titel="Luftfahrzeug auswählen">
+        Links ein Luftfahrzeug wählen, um Sperrgründe, Pilotenhinweise und den Verlauf zu sehen.
       </Leer>
     </Panel>
   )

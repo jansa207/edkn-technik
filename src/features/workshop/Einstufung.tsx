@@ -21,7 +21,8 @@ export function EinstufenForm({
   const [hinweis, setHinweis] = useState(m.pilotenhinweis ?? '')
   const [sichtbar, setSichtbar] = useState(m.kategorie === 2 ? m.pilotenhinweis_sichtbar : true)
   const [ziel, setZiel] = useState(m.ziel ?? '')
-  const [begruendung, setBegruendung] = useState('')
+  const [begruendung, setBegruendung] = useState(m.kategorie === 3 ? (m.massnahme ?? '') : '')
+  const [beobachten, setBeobachten] = useState(m.beobachten)
   const [aufgabe, setAufgabe] = useState(m.status === 'neu')
 
   const fehlt =
@@ -33,7 +34,9 @@ export function EinstufenForm({
           ? 'Bitte ein Ziel angeben.'
           : kat === 3 && !begruendung.trim()
             ? 'Bitte eine Begründung angeben.'
-            : null
+            : kat === 3 && beobachten && !hinweis.trim()
+              ? 'Bitte einen Hinweis für die Piloten angeben.'
+              : null
 
   function speichern(e: FormEvent) {
     e.preventDefault()
@@ -43,9 +46,10 @@ export function EinstufenForm({
         reportId: m.id,
         kategorie: kat,
         ziel: kat === 2 ? ziel.trim() : undefined,
-        pilotenhinweis: kat !== 3 ? hinweis.trim() || undefined : undefined,
+        pilotenhinweis: kat !== 3 || beobachten ? hinweis.trim() || undefined : undefined,
         pilotenhinweisSichtbar: kat === 2 ? sichtbar && Boolean(hinweis.trim()) : kat === 1,
         begruendung: kat === 3 ? begruendung.trim() : undefined,
+        beobachten: kat === 3 && beobachten,
       },
       { onSuccess: () => onEingestuft?.(kat, aufgabe && kat !== 3) },
     )
@@ -67,10 +71,10 @@ export function EinstufenForm({
             ton={k === 1 ? 'rot' : k === 2 ? 'gelb' : 'grau'}
             text={
               k === 1
-                ? 'Flugzeug wird rot, bis die Meldung erledigt ist.'
+                ? 'Luftfahrzeug wird rot, bis die Beanstandung erledigt ist.'
                 : k === 2
-                  ? 'Flugzeug bleibt fliegbar. Optional mit Hinweis für Piloten (dann gelb).'
-                  : 'Meldung wird abgelegt. Die Begründung geht an den Melder.'
+                  ? 'Luftfahrzeug bleibt fliegbar. Optional mit Hinweis für Piloten (dann gelb).'
+                  : 'Beanstandung wird abgelegt. Die Begründung geht an den Melder. Optional unter Beobachtung.'
             }
           />
         ))}
@@ -80,7 +84,7 @@ export function EinstufenForm({
         <Feld
           label="Sperrgrund für Piloten"
           pflicht
-          hinweis="Sehen alle Piloten am Flugzeug."
+          hinweis="Sehen alle Piloten am Luftfahrzeug."
           zaehler={`${hinweis.length}/500`}
         >
           {(p) => (
@@ -163,15 +167,42 @@ export function EinstufenForm({
               maxLength={2000}
               value={begruendung}
               onChange={(e) => setBegruendung(e.target.value)}
-              placeholder="z. B. Luftdruck geprüft, alles in Ordnung. Danke für die Meldung!"
+              placeholder="z. B. Luftdruck geprüft, alles in Ordnung. Danke für deine Meldung!"
             />
           )}
         </Feld>
       )}
 
+      {kat === 3 && (
+        <div
+          className={`space-y-3 rounded-md border p-3 ${beobachten ? 'border-violet-300 bg-violet-50' : 'border-rand-stark'}`}
+        >
+          <Haken
+            label="Unter Beobachtung"
+            hinweis="Kein Handlungsbedarf, aber alle Piloten sehen einen Hinweis, bis du die Beobachtung beendest. Die Ampel bleibt unverändert."
+            checked={beobachten}
+            onChange={(e) => setBeobachten(e.target.checked)}
+          />
+          {beobachten && (
+            <Feld label="Hinweis für Piloten" pflicht zaehler={`${hinweis.length}/500`}>
+              {(p) => (
+                <Textfeld
+                  {...p}
+                  rows={2}
+                  maxLength={500}
+                  value={hinweis}
+                  onChange={(e) => setHinweis(e.target.value)}
+                  placeholder="z. B. Leerlauf etwas rau, bekannt. Bitte melden, wenn es schlimmer wird."
+                />
+              )}
+            </Feld>
+          )}
+        </div>
+      )}
+
       {kat !== null && kat !== 3 && m.status === 'neu' && (
         <Haken
-          label="Danach direkt eine Werkstatt-Aufgabe anlegen"
+          label="Danach direkt eine Aufgabe anlegen"
           checked={aufgabe}
           onChange={(e) => setAufgabe(e.target.checked)}
         />
@@ -221,7 +252,7 @@ export function ErledigenForm({ m, offeneAufgaben }: { m: Meldung; offeneAufgabe
     >
       {offeneAufgaben > 0 && (
         <Hinweis ton="warnung">
-          Zu dieser Meldung{' '}
+          Zu dieser Beanstandung{' '}
           {offeneAufgaben === 1 ? 'ist noch 1 Aufgabe' : `sind noch ${offeneAufgaben} Aufgaben`}{' '}
           offen.
         </Hinweis>
@@ -248,7 +279,7 @@ export function ErledigenForm({ m, offeneAufgaben }: { m: Meldung; offeneAufgabe
           className={`rounded-md border p-3 ${flugklar ? 'border-ampel-gruen bg-green-50' : 'border-rand-stark'}`}
         >
           <Haken
-            label="Flugzeug ist wieder flugklar"
+            label="Luftfahrzeug ist wieder flugklar"
             hinweis="Bestätigung durch dich als Wart. Ersetzt keine Prüferfreigabe oder Eintragung ins Bordbuch."
             checked={flugklar}
             onChange={(e) => setFlugklar(e.target.checked)}

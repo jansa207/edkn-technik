@@ -6,7 +6,7 @@ import type { Enums } from '@/lib/supabase'
 import type { VerlaufEintrag } from './api'
 
 const TYP: Record<Enums<'event_typ'>, { text: string; icon: typeof Tag }> = {
-  erstellt: { text: 'Meldung', icon: PlusCircle },
+  erstellt: { text: 'Beanstandung', icon: PlusCircle },
   kommentar: { text: 'Kommentar', icon: MessageSquare },
   statuswechsel: { text: 'Status', icon: PencilLine },
   kategorie: { text: 'Einstufung', icon: Tag },
@@ -49,7 +49,7 @@ export function VerlaufListe({
                     to={meldungsLink(e.report_id)}
                     className="text-primaer font-medium hover:underline"
                   >
-                    Zur Meldung
+                    Zur Beanstandung
                   </Link>
                 )}
               </p>

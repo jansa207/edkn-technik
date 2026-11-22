@@ -106,8 +106,8 @@ export function AufgabeDialog({
       titel={bearbeitung ? `${aufgabenNr(aufgabe?.nr)} bearbeiten` : 'Neue Aufgabe'}
       untertitel={
         reportId
-          ? `Zu Meldung ${meldungsNr(reportNr)} – erscheint intern im Verlauf der Meldung.`
-          : 'Interne To-do der Werkstatt. Kein Einfluss auf die Ampel.'
+          ? `Zu Beanstandung ${meldungsNr(reportNr)} – erscheint intern im Verlauf der Beanstandung.`
+          : 'Interne To-do der Instandhaltung. Kein Einfluss auf die Ampel.'
       }
       fuss={
         <>
@@ -137,7 +137,10 @@ export function AufgabeDialog({
         </Feld>
 
         <div className="grid gap-4 sm:grid-cols-2">
-          <Feld label="Flugzeug" hinweis={reportId ? 'Durch die Meldung festgelegt' : undefined}>
+          <Feld
+            label="Luftfahrzeug"
+            hinweis={reportId ? 'Durch die Beanstandung festgelegt' : undefined}
+          >
             {(p) => (
               <Auswahl
                 {...p}
@@ -145,7 +148,7 @@ export function AufgabeDialog({
                 disabled={Boolean(reportId)}
                 onChange={(e) => setze('aircraftId', e.target.value || null)}
               >
-                <option value="">Kein Flugzeug (allgemein)</option>
+                <option value="">Kein Luftfahrzeug (allgemein)</option>
                 {flugzeuge.map((f) => (
                   <option key={f.id} value={f.id}>
                     {f.kennzeichen} · {f.muster}

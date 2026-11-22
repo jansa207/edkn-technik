@@ -1,7 +1,17 @@
 import { useIsFetching, useQueryClient } from '@tanstack/react-query'
-import { ChevronRight, LogOut, Menu, PlaneTakeoff, RefreshCw, WifiOff, X } from 'lucide-react'
+import {
+  ChevronRight,
+  LogOut,
+  Menu,
+  Plane,
+  PlaneTakeoff,
+  RefreshCw,
+  WifiOff,
+  Wrench,
+  X,
+} from 'lucide-react'
 import { useState } from 'react'
-import { Link, NavLink, Outlet, useLocation, useMatches } from 'react-router'
+import { Link, NavLink, Outlet, useLocation, useMatches, useNavigate } from 'react-router'
 import { ButtonLink } from '@/components/Button'
 import { ROLLE_TEXT } from '@/components/statusTexte'
 import { useFlotte } from '@/features/aircraft/api'
@@ -10,7 +20,15 @@ import { useAuth, useProfil } from '@/features/auth/useAuth'
 import { name, uhrzeit } from '@/lib/format'
 import { useOnline } from '@/lib/useOnline'
 import { APP_VERSION, FOOTER_HINWEIS } from './hinweise'
-import { sichtbareNavigation, type RoutenHandle } from './navigation'
+import { setModus, useModus } from './modus'
+import {
+  hatInstandhaltung,
+  MODUS_START,
+  MODUS_TEXT,
+  sichtbareNavigation,
+  type Modus,
+  type RoutenHandle,
+} from './navigation'
 import { useZaehler } from './useZaehler'
 
 export { FOOTER_HINWEIS } from './hinweise'
@@ -33,12 +51,59 @@ function Zaehler({ wert }: { wert: number }) {
   )
 }
 
+/** Umschalter Flugbetrieb ⇄ Instandhaltung für Warte und Admins */
+function ModusUmschalter({ onNavigiert }: { onNavigiert?: () => void }) {
+  const modus = useModus()
+  const navigate = useNavigate()
+  const zaehler = useZaehler()
+  const offen = zaehler.neueMeldungen + zaehler.fristenUeberfaellig
+  const wahl = (m: Modus) => {
+    setModus(m)
+    void navigate(MODUS_START[m])
+    onNavigiert?.()
+  }
+  return (
+    <div
+      role="group"
+      aria-label="Bereich"
+      className="mx-2 mb-1 grid grid-cols-2 gap-1 rounded-md bg-white/5 p-1"
+    >
+      {(['flugbetrieb', 'instandhaltung'] as const).map((m) => {
+        const Icon = m === 'flugbetrieb' ? Plane : Wrench
+        const aktiv = modus === m
+        return (
+          <button
+            key={m}
+            type="button"
+            aria-pressed={aktiv}
+            onClick={() => wahl(m)}
+            className={`relative flex min-h-11 items-center justify-center gap-1.5 rounded-sm px-2 text-[13px] font-medium lg:min-h-8 lg:text-xs ${
+              aktiv
+                ? 'bg-nav-aktiv text-white'
+                : 'text-nav-text hover:bg-nav-hover hover:text-white'
+            }`}
+          >
+            <Icon aria-hidden="true" className="size-4 shrink-0 lg:size-3.5" />
+            {MODUS_TEXT[m]}
+            {m === 'instandhaltung' && !aktiv && offen > 0 && (
+              <span className="bg-akzent absolute -top-1 -right-1 min-w-4 rounded-full px-1 text-center font-mono text-[10px] leading-4 font-semibold text-white">
+                {offen}
+              </span>
+            )}
+          </button>
+        )
+      })}
+    </div>
+  )
+}
+
 /** Navigation: dunkel, gruppiert. Gleicher Inhalt für Desktop-Leiste und Handy-Menü. */
 function NavInhalt({ onNavigiert }: { onNavigiert?: () => void }) {
   const profil = useProfil()
   const { abmelden } = useAuth()
   const zaehler = useZaehler()
-  const gruppen = sichtbareNavigation(profil.rolle)
+  const modus = useModus()
+  const gruppen = sichtbareNavigation(profil.rolle, modus)
 
   return (
     <div className="flex h-full flex-col">
@@ -47,6 +112,7 @@ function NavInhalt({ onNavigiert }: { onNavigiert?: () => void }) {
           <Logo />
         </Link>
       </div>
+      {hatInstandhaltung(profil.rolle) && <ModusUmschalter onNavigiert={onNavigiert} />}
       <nav aria-label="Hauptmenü" className="flex-1 space-y-5 overflow-y-auto px-2 py-4">
         {gruppen.map((g) => (
           <div key={g.titel}>
@@ -55,7 +121,7 @@ function NavInhalt({ onNavigiert }: { onNavigiert?: () => void }) {
             </p>
             <ul className="space-y-0.5">
               {g.punkte.map((p) => (
-                <li key={p.to}>
+                <li key={`${g.titel}-${p.to}`}>
                   <NavLink
                     to={p.to}
                     end={p.exakt}
@@ -144,7 +210,7 @@ export function Layout() {
   const online = useOnline()
   const ort = useLocation()
   const zaehler = useZaehler()
-  const menuZaehler = zaehler.neueMeldungen + zaehler.nutzerAusstehend
+  const menuZaehler = zaehler.neueMeldungen + zaehler.nutzerAusstehend + zaehler.fristenUeberfaellig
   // Menü gilt nur für die Adresse, auf der es geöffnet wurde (schließt z. B. bei Zurück-Taste)
   const [menuPfad, setMenuPfad] = useState<string | null>(null)
   const menuOffen = menuPfad === ort.pathname
@@ -213,7 +279,7 @@ export function Layout() {
             art="primaer"
             icon={<PlaneTakeoff aria-hidden="true" className="size-4" />}
           >
-            Mangel melden
+            Beanstandung melden
           </ButtonLink>
         )}
       </header>
@@ -273,7 +339,7 @@ export function Layout() {
           className="bg-primaer fixed right-4 bottom-[max(1rem,env(safe-area-inset-bottom))] z-20 inline-flex min-h-14 items-center gap-2 rounded-md px-5 text-base font-semibold text-white shadow-lg lg:hidden"
         >
           <PlaneTakeoff aria-hidden="true" className="size-5" />
-          Mangel melden
+          Beanstandung melden
         </Link>
       )}
     </div>

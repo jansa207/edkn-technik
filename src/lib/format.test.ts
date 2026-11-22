@@ -1,6 +1,16 @@
 import { describe, expect, it } from 'vitest'
 import { zielGroesse } from './bild'
-import { aufgabenNr, fristText, meldungsNr, tag, tageBis, zeitpunkt } from './format'
+import {
+  aufgabenNr,
+  fristText,
+  meldungsNr,
+  minutenAus,
+  plusMonate,
+  stunden,
+  tag,
+  tageBis,
+  zeitpunkt,
+} from './format'
 
 describe('Formatierung', () => {
   it('formatiert Zeitpunkte in deutscher Zeit', () => {
@@ -26,6 +36,25 @@ describe('Formatierung', () => {
     expect(fristText('2026-11-17', jetzt)).toBe('überfällig seit gestern')
     expect(fristText('2026-11-18', jetzt)).toBe('heute fällig')
     expect(fristText('2026-11-25', jetzt)).toBe('in 7 Tagen')
+  })
+
+  it('zeigt Betriebsstunden als Stunden:Minuten', () => {
+    expect(stunden(74_105)).toBe('1235:05 h')
+    expect(stunden(-300)).toBe('−5:00 h')
+    expect(stunden(null)).toBe('–')
+  })
+
+  it('liest Stundenstände in verschiedenen Schreibweisen', () => {
+    expect(minutenAus('1235:05')).toBe(74_105)
+    expect(minutenAus('1235,5')).toBe(74_130)
+    expect(minutenAus('50 h')).toBe(3000)
+    expect(minutenAus('12:75')).toBeNull()
+    expect(minutenAus('abc')).toBeNull()
+  })
+
+  it('rechnet Monate auf ein Datum', () => {
+    expect(plusMonate('2026-11-22', 12)).toBe('2027-11-22')
+    expect(plusMonate('2026-01-31', 1)).toBe('2026-02-28')
   })
 })
 

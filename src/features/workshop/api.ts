@@ -34,6 +34,7 @@ export interface Einstufung {
   pilotenhinweis?: string
   pilotenhinweisSichtbar?: boolean
   begruendung?: string
+  beobachten?: boolean
 }
 
 export function useEinstufen() {
@@ -47,9 +48,24 @@ export function useEinstufen() {
           p_pilotenhinweis: e.pilotenhinweis,
           p_pilotenhinweis_sichtbar: e.pilotenhinweisSichtbar ?? false,
           p_begruendung: e.begruendung,
+          p_beobachten: e.beobachten ?? false,
         }),
       ),
-    (_, e) => `Als Kat ${e.kategorie} eingestuft`,
+    (_, e) =>
+      e.beobachten ? 'Als Kat 3 unter Beobachtung eingestuft' : `Als Kat ${e.kategorie} eingestuft`,
+  )
+}
+
+export function useBeobachtungBeenden() {
+  return useAktion(
+    async (v: { reportId: string; text: string }) =>
+      pruefe(
+        await supabase.rpc('report_beobachtung_beenden', {
+          p_report_id: v.reportId,
+          p_text: v.text,
+        }),
+      ),
+    'Beobachtung beendet',
   )
 }
 
@@ -69,7 +85,7 @@ export function useMeldungStatus() {
           p_flugklar_bestaetigt: v.flugklar ?? false,
         }),
       ),
-    (_, v) => (v.status === 'erledigt' ? 'Meldung erledigt' : 'Meldung ist in Arbeit'),
+    (_, v) => (v.status === 'erledigt' ? 'Beanstandung erledigt' : 'Beanstandung ist in Arbeit'),
   )
 }
 
